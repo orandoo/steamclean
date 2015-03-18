@@ -109,8 +109,8 @@ def analyze_vdf(steamdir, dirclean=False, library=None):
 
         # Append game directories found in specified library if present.
         print('Checking library directories. Please wait...')
-        if library is not None and sappscommon in library and
-        os.path.isdir(library):
+        if library is not None and sappscommon in library \
+        and os.path.isdir(library):
             for d in os.listdir(library):
                 if os.path.isdir(os.path.join(library, d)):
                     if d not in gamedir:
@@ -130,7 +130,7 @@ def analyze_vdf(steamdir, dirclean=False, library=None):
                         for (path, dirs, files) in os.walk(game + '\\' + item):
                             for file in files:
                                 filepath = os.path.abspath(path + '\\' + file)
-                                if os.path.isfile(filepath) and
+                                if os.path.isfile(filepath) and \
                                 os.path.exists(filepath):
                                     redistfiles.append(filepath)
 
@@ -159,7 +159,7 @@ def analyze_vdf(steamdir, dirclean=False, library=None):
                 if 'INSTALLDIR' in line:
                     # Replace %INSTALLDIR% with path and make it valid.
                     splitline = line.split('%')
-                    newline = splitline[1].replace('INSTALLDIR', game) +
+                    newline = splitline[1].replace('INSTALLDIR', game) + \
                     splitline[2][0: splitline[2].find('.') + 4]
 
                     # Clean path, appending only existing files to clean list.
@@ -199,8 +199,8 @@ def clean_data(filelist, printlist=False):
                 userinput = input(
                     'Enter file number to exclude from deletion \
                     (no input to continue): ')
-                if userinput != '' and int(userinput) <= len(filelist) and
-                int(userinput) >= 0:
+                if userinput != '' and int(userinput) <= len(filelist) \
+                and int(userinput) >= 0:
                     if int(userinput) not in excludes:
                         excludes.append(int(userinput))
                     continue
@@ -279,8 +279,8 @@ if __name__ == "__main__":
             else:
                 clean_data(cleanable, args.printlist)
         else:
-            print('\nCongratulations! No files were found for removal. \
-            This script will now exit.')
+            print('\nCongratulations! No files were found for removal. '
+            'This script will now exit.')
     elif os.name == 'posix':
         print('No Linux support at this time. \
         Please report files that can be cleaned.')
