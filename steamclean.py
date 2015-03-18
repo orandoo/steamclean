@@ -2,7 +2,7 @@
 
 # Filename:     steamclean.py
 # Version:      0.2.3
-# Release Date: 2014.02.02
+# Release Date: 2015.03.17
 # Description:  Script to find and remove extraneous files from
 #               Steam game installations.
 
