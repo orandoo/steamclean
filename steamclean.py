@@ -59,8 +59,8 @@ def win_reg_check():
         # Save installation path value and close open registry key.
         ipath = winreg.QueryValueEx(regkey, 'InstallPath')[0]
 
-    except:
-        print('Unable to read registry data.')
+    except PermissionError:
+        print('Permission denied to read registry data.')
         ipath = input('Please enter the Steam installation directory: ')
 
     finally:
@@ -113,10 +113,10 @@ def analyze_vdf(steamdir, dirclean=False, library=None):
             print('Checking library ' + lib + ' Please wait...')
             if library is not None and sappscommon in lib \
                     and os.path.isdir(lib):
-                for d in os.listdir(lib):
-                    if os.path.isdir(os.path.join(lib, d)):
-                        if d not in gamedir:
-                            gamedir[os.path.join(lib, d)] = ''
+                for dir in os.listdir(lib):
+                    if os.path.isdir(os.path.join(lib, dir)):
+                        if dir not in gamedir:
+                            gamedir[os.path.join(lib, dir)] = ''
 
     if dirclean:
         # Build a list of redistributable files found in common folders.
@@ -228,11 +228,18 @@ def clean_data(filelist, printlist=False):
 
         for index, file in enumerate(filelist):
             if index not in excludes:
-                if os.path.isfile(file) and os.path.exists(file):
-                    os.remove(file)
-                    removed += 1
-                else:
-                    print('Error removing file: %s' % (file))
+                try:
+                    if os.path.isfile(file) and os.path.exists(file):
+                        os.remove(file)
+                        removed += 1
+                    else:
+                        print('Error removing file: %s' % (file))
+
+                except FileNotFoundError:
+                    print('File %s not found, skipping.' % (file))
+
+                except PermissionError:
+                    print('Permission denied on file %s' % (file))
 
         print('\n%s files successfully removed.' % (removed))
 
