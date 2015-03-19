@@ -1,8 +1,8 @@
 ﻿#!/usr/bin/env python3
 
 # Filename:     steamclean.py
-# Version:      0.2.3
-# Release Date: 2015.03.17
+# Version:      0.2.4
+# Release Date: 2015.03.18
 # Description:  Script to find and remove extraneous files from
 #               Steam game installations.
 
@@ -110,7 +110,7 @@ def analyze_vdf(steamdir, dirclean=False, library=None):
         # Append game directories found in specified library if present.
         print('Checking library directories. Please wait...')
         if library is not None and sappscommon in library \
-        and os.path.isdir(library):
+                and os.path.isdir(library):
             for d in os.listdir(library):
                 if os.path.isdir(os.path.join(library, d)):
                     if d not in gamedir:
@@ -130,8 +130,8 @@ def analyze_vdf(steamdir, dirclean=False, library=None):
                         for (path, dirs, files) in os.walk(game + '\\' + item):
                             for file in files:
                                 filepath = os.path.abspath(path + '\\' + file)
-                                if os.path.isfile(filepath) and \
-                                os.path.exists(filepath):
+                                if (os.path.isfile(filepath) and
+                                        os.path.exists(filepath)):
                                     redistfiles.append(filepath)
 
         # Add filename and size to cleanable list.
@@ -160,7 +160,7 @@ def analyze_vdf(steamdir, dirclean=False, library=None):
                     # Replace %INSTALLDIR% with path and make it valid.
                     splitline = line.split('%')
                     newline = splitline[1].replace('INSTALLDIR', game) + \
-                    splitline[2][0: splitline[2].find('.') + 4]
+                        splitline[2][0: splitline[2].find('.') + 4]
 
                     # Clean path, appending only existing files to clean list.
                     filepath = os.path.abspath(newline)
@@ -197,10 +197,10 @@ def clean_data(filelist, printlist=False):
         if len(filelist) > 0:
             while True:
                 userinput = input(
-                    'Enter file number to exclude from deletion \
-                    (no input to continue): ')
+                    'Enter file number to exclude from deletion '
+                    '(no input to continue): ')
                 if userinput != '' and int(userinput) <= len(filelist) \
-                and int(userinput) >= 0:
+                        and int(userinput) >= 0:
                     if int(userinput) not in excludes:
                         excludes.append(int(userinput))
                     continue
@@ -209,9 +209,9 @@ def clean_data(filelist, printlist=False):
 
     # Print a warning that files will be permanantly deleted and
     # inform user they can exclude files with the -p option.
-    print('\nWARNING: All files will be permanantly deleted! If you wish to \
-    review the list of files to be removed please re-run this \
-    script with the -p option.\n')
+    print('\nWARNING: All files will be permanantly deleted! If you wish to '
+          'review the list of files to be removed please re-run this '
+          'script with the -p option.\n')
     while True:
         confirm = input('Do you wish to remove extra files [y/N]: ').lower()
         if confirm != 'y' and confirm != 'n':
@@ -257,7 +257,7 @@ if __name__ == "__main__":
         description='Find and clean unneeded files from game directories.')
     parser.add_argument('-d', '--dirclean',
                         help='Clean redistributable directories if found.',
-                        action='store_false')
+                        action='store_true')
     parser.add_argument('-l', '--library',
                         help='Additional Steam library to examine.')
     parser.add_argument('-p', '--printlist',
@@ -280,7 +280,7 @@ if __name__ == "__main__":
                 clean_data(cleanable, args.printlist)
         else:
             print('\nCongratulations! No files were found for removal. '
-            'This script will now exit.')
+                  'This script will now exit.')
     elif os.name == 'posix':
         print('No Linux support at this time. \
         Please report files that can be cleaned.')
