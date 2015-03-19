@@ -1,8 +1,8 @@
 ﻿#!/usr/bin/env python3
 
 # Filename:     steamclean.py
-# Version:      0.2.4
-# Release Date: 2015.03.18
+# Version:      0.2.5
+# Release Date: 2015.03.19
 # Description:  Script to find and remove extraneous files from
 #               Steam game installations.
 
@@ -93,28 +93,30 @@ def analyze_vdf(steamdir, dirclean=False, library=None):
 
     # Gather game directories from default path.
     print('Checking default installation directory. Please wait...')
-    for d in os.listdir(steamdir):
-        if os.path.isdir(os.path.join(steamdir, d)):
-            if d not in gamedir:
-                gamedir[os.path.join(steamdir, d)] = ''
+    for dir in os.listdir(steamdir):
+        if os.path.isdir(os.path.join(steamdir, dir)):
+            if dir not in gamedir:
+                gamedir[os.path.join(steamdir, dir)] = ''
 
     if library is not None:
-        # Normalize casing for case insensitivity.
-        library = library.lower()
+        # Force lower case and separate multiple libraries.
+        liblist = library.lower().split(',')
 
-        # Verify library path exists and append games directory if nessesary.
-        if os.path.isdir(library) and 'Steam' in library:
-            if sappscommon not in library:
-                library += sappscommon
+        # Check all provided libraries.
+        for lib in liblist:
+            # Verify library path exists and append games directory.
+            if os.path.isdir(lib) and 'Steam' in lib:
+                if sappscommon not in lib:
+                    lib += sappscommon
 
-        # Append game directories found in specified library if present.
-        print('Checking library directories. Please wait...')
-        if library is not None and sappscommon in library \
-                and os.path.isdir(library):
-            for d in os.listdir(library):
-                if os.path.isdir(os.path.join(library, d)):
-                    if d not in gamedir:
-                        gamedir[os.path.join(library, d)] = ''
+            # Append game directories found in specified library if present.
+            print('Checking library ' + lib + ' Please wait...')
+            if library is not None and sappscommon in lib \
+                    and os.path.isdir(lib):
+                for d in os.listdir(lib):
+                    if os.path.isdir(os.path.join(lib, d)):
+                        if d not in gamedir:
+                            gamedir[os.path.join(lib, d)] = ''
 
     if dirclean:
         # Build a list of redistributable files found in common folders.
@@ -209,7 +211,7 @@ def clean_data(filelist, printlist=False):
 
     # Print a warning that files will be permanantly deleted and
     # inform user they can exclude files with the -p option.
-    print('\nWARNING: All files will be permanantly deleted! If you wish to '
+    print('WARNING: All files will be permanantly deleted! If you wish to '
           'review the list of files to be removed please re-run this '
           'script with the -p option.\n')
     while True:
