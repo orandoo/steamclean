@@ -25,7 +25,7 @@ optional arguments:
 ### Troubleshooting
 This was tested on my own system and I noticed no issues with my games. I took care to filter out as many files as possible and to limit the scope. 
 
-If you encounter a crash please include the strack trace information from the terminal in your bug report and any details that may aid in correcting the code.
+If you encounter a crash please include the stack trace information from the terminal in your bug report and any details that may aid in correcting the code.
 
 If a file is removed that should not have been do not panic. Simply verify the game files and it will be replaced. Let me know what the file name is and what game it belongs to so I can look into fine tuning the search algorithm.
 
