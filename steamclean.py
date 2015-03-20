@@ -263,18 +263,20 @@ def summary_report(cleanable, printlist=False):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        description='Find and clean unneeded files from game directories.')
-    parser.add_argument('-d', '--dirclean',
-                        help='Clean redistributable directories if found.',
-                        action='store_true')
-    parser.add_argument('-l', '--library',
-                        help='Additional Steam library to examine.')
-    parser.add_argument('-p', '--printlist',
-                        help='Print list of removable data.',
+        description='Find and clean extraneous files from game directories '
+                    'including various Windows redistributables.')
+    parser.add_argument('-p', '--preview',
+                        help='Preview the list of removable data.',
                         action='store_true')
     parser.add_argument('-s', '--summary',
                         help='Summary of number of files and total size.',
                         action='store_true')
+    parser.add_argument('-d', '--dirclean',
+                        help='Clean redistributable directories if found.',
+                        action='store_true')
+    parser.add_argument('-l', '--library',
+                        help='Additional Steam libraries to examine '
+                        '(comma separated).')
     args = parser.parse_args()
 
     print_header()
