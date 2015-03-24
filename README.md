@@ -7,7 +7,7 @@ This was tested on my own library and I saw no ill effects. If you do encounter 
 
 ### Usage
 ```
-usage: steamclean.py [-h] [-p] [-s] [-d] [-l LIBRARY]
+usage: steamclean.py [-h] [-p] [--dryrun] [--nodir] [-l LIBRARY]
 
 Find and clean extraneous files from game directories including various
 Windows redistributables.
@@ -15,8 +15,8 @@ Windows redistributables.
 optional arguments:
   -h, --help            show this help message and exit
   -p, --preview         Preview the list of removable data.
-  -s, --summary         Summary of number of files and total size.
-  -d, --dirclean        Clean redistributable directories if found.
+  --dryrun              Run script without allowing any file removal.
+  --nodir               Do not clean redistributable directories.
   -l LIBRARY, --library LIBRARY
                         Additional Steam libraries to examine (comma
                         separated).
