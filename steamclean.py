@@ -51,7 +51,7 @@ def win_reg_check():
         elif '32' in pa()[0]:
             regkey = winreg.OpenKeyEx(
                 winreg.HKEY_LOCAL_MACHINE, r'SOFTWARE\Valve\Steam', 0,
-                (winreg.KEY_WOW64_64KEY + winreg.KEY_READ))
+                winreg.KEY_READ)
         # else block should never be reached under normal conditions.
         else:
             raise ValueError('Invalid or missing architecture.')
@@ -71,7 +71,7 @@ def win_reg_check():
         return ipath.strip()
 
 
-def analyze_vdf(steamdir, dirclean=False, library=None):
+def analyze_vdf(steamdir, nodir=False, library=None):
     """ Find all .vdf files in provided locations and
     extract file locations of redistributable data. """
 
@@ -118,7 +118,7 @@ def analyze_vdf(steamdir, dirclean=False, library=None):
                         if dir not in gamedir:
                             gamedir[os.path.join(lib, dir)] = ''
 
-    if dirclean:
+    if not nodir:
         # Build a list of redistributable files found in common folders.
         redistfiles = []
         for game in gamedir:
@@ -180,17 +180,17 @@ def analyze_vdf(steamdir, dirclean=False, library=None):
     return cleanable
 
 
-def clean_data(filelist, printlist=False):
+def clean_data(filelist, preview=False):
     """ Function to remove found data from installed game directories.
         Will prompt user for a list of files to exclude with the proper
         options otherwise all will be deleted."""
 
-    summary_report(filelist)
+    dry_run(filelist)
     confirm = ''
     excludes = []
 
     # Print a list of all files found and their index for user review.
-    if printlist:
+    if preview:
         for index, file in enumerate(filelist):
             print(index, file, '\n')
 
@@ -244,7 +244,7 @@ def clean_data(filelist, printlist=False):
         print('\n%s files successfully removed.' % (removed))
 
 
-def summary_report(cleanable, printlist=False):
+def dry_run(cleanable, preview=False):
     """ Print a report of removable files and thier estimated size. """
 
     filecount = len(cleanable)
@@ -255,7 +255,7 @@ def summary_report(cleanable, printlist=False):
     print('\nTotal number of files to be cleaned', filecount)
     print('Estimated disk space saved %s MB' % format(totalsize, '.2f'), '\n')
 
-    if printlist:
+    if preview:
         for cfile in cleanable:
             print('File path: %s' % cfile)
             print('File size: %s MB' % format(cleanable[cfile], '.2f'))
@@ -268,11 +268,11 @@ if __name__ == "__main__":
     parser.add_argument('-p', '--preview',
                         help='Preview the list of removable data.',
                         action='store_true')
-    parser.add_argument('-s', '--summary',
-                        help='Summary of number of files and total size.',
+    parser.add_argument('--dryrun',
+                        help='Run script without allowing any file removal.',
                         action='store_true')
-    parser.add_argument('-d', '--dirclean',
-                        help='Clean redistributable directories if found.',
+    parser.add_argument('--nodir',
+                        help='Do not clean redistributable directories.',
                         action='store_true')
     parser.add_argument('-l', '--library',
                         help='Additional Steam libraries to examine '
@@ -282,13 +282,13 @@ if __name__ == "__main__":
     print_header()
 
     if os.name == 'nt':
-        cleanable = analyze_vdf(win_reg_check(), args.dirclean, args.library)
+        cleanable = analyze_vdf(win_reg_check(), args.nodir, args.library)
 
         if len(cleanable) > 0:
-            if args.summary:
-                summary_report(cleanable, args.printlist)
+            if args.dryrun:
+                dry_run(cleanable, args.preview)
             else:
-                clean_data(cleanable, args.printlist)
+                clean_data(cleanable, args.preview)
         else:
             print('\nCongratulations! No files were found for removal. '
                   'This script will now exit.')
