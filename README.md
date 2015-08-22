@@ -24,12 +24,12 @@ optional arguments:
 
 ### Sample Commands ###
 
-*Default run (checks only default installation path)
+* Default run (checks only default installation path)
 ```
 python steamclean.py
 ```
 
-*Check additional library (can be comma separated)
+* Check additional library (can be comma separated)
 ```
 python steamclean.py -l "D:\Program Files (x86)\Steam"
 ```
@@ -47,6 +47,6 @@ Input prompts will continue to be displayed with each additional input. This has
 Using output redirection will not allow input to be sent to the script. If redirecting output use the preview option and simply end the script after a few seconds (Ctrl+C). You can them view the file in any plain text editor and rerun the script normally.
 
 ### Upcoming features
-*Better exception handling
-*Script logging
-*Linux support
+* Better exception handling
+* Script logging
+* Linux support
