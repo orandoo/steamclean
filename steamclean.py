@@ -290,10 +290,11 @@ if __name__ == "__main__":
             else:
                 clean_data(cleanable, args.preview)
         else:
-            print('\nCongratulations! No files were found for removal. '
-                  'This script will now exit.')
+            print('\nCongratulations! No files were found for removal. ')
     elif os.name == 'posix':
         print('No Linux support at this time. \
         Please report files that can be cleaned.')
     else:
         print('Invalid operating system detected.')
+
+    input('Press Enter to exit...')
