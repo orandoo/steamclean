@@ -1,18 +1,31 @@
 ﻿#!/usr/bin/env python3
 
 # Filename:     steamclean.py
-# Version:      0.2.6
-# Release Date: 2015.03.23
+# Version:      0.3.0
+# Release Date: 2015.10.03
 # Description:  Script to find and remove extraneous files from
 #               Steam game installations.
 
 from linecache import clearcache, getline
 from platform import architecture as pa
+from platform import platform as pp
+from time import strftime
 import argparse
+import logging
 import os
 
 if (os.name == 'nt'):
     import winreg
+
+
+# build logger and its configuration to write script data to specified log
+logger = logging.getLogger('steamclean')
+logger.setLevel(logging.INFO)
+logformatter = logging.Formatter('%(asctime)s %(levelname)s: %(message)s',
+                                 datefmt='%Y-%m-%d %H:%M:%S')
+fh = logging.FileHandler('steamclean_' + strftime('%Y-%m-%d') + '.log')
+fh.setFormatter(logformatter)
+logger.addHandler(fh)
 
 
 def print_header():
@@ -31,7 +44,10 @@ def print_header():
         clearcache()
 
         print('%s v%s \n' % (filename, version))
+        logger.info('Starting script ' + filename + ' v' + version)
+        logger.info('Current operating system: ' + pp() + ' ' + pa()[0])
     except:
+        logger.warning('Unable to read version information from script file.')
         pass
 
 
@@ -39,33 +55,42 @@ def win_reg_check():
     """ Get Steam installation path from reading registry data.
         If unable to read registry information prompt user for input. """
 
+    arch = pa()[0]
+    regbase = 'HKEY_LOCAL_MACHINE\\'
     regkey = None
 
-    try:
-        # Open key based on architecture returned from platform.
-        if '64' in pa()[0]:
-            regkey = winreg.OpenKeyEx(
-                winreg.HKEY_LOCAL_MACHINE,
-                r'SOFTWARE\Wow6432Node\Valve\Steam', 0,
-                (winreg.KEY_WOW64_64KEY + winreg.KEY_READ))
-        elif '32' in pa()[0]:
-            regkey = winreg.OpenKeyEx(
-                winreg.HKEY_LOCAL_MACHINE, r'SOFTWARE\Valve\Steam', 0,
-                winreg.KEY_READ)
-        # else block should never be reached under normal conditions.
-        else:
-            raise ValueError('Invalid or missing architecture.')
+    # use architecture returned to evaluate appropriate registry key
+    if arch == '64bit':
+        regpath = r'SOFTWARE\Wow6432Node\Valve\Steam'
+        regopts = (winreg.KEY_WOW64_64KEY + winreg.KEY_READ)
+    elif arch == '32bit':
+        regpath = r'SOFTWARE\Valve\Steam'
+        regopts = winreg.KEY_READ
+    else:
+        logger.error('Unable to determine system architecture.')
+        raise ValueError('ERROR: Unable to determine system architecture.')
 
+    try:
+        regkey = winreg.OpenKeyEx(winreg.HKEY_LOCAL_MACHINE, regpath, 0,
+                                  regopts)
         # Save installation path value and close open registry key.
         ipath = winreg.QueryValueEx(regkey, 'InstallPath')[0]
 
     except PermissionError:
-        print('Permission denied to read registry data.')
+        logger.error('Unable to read registry data at %s due to insufficient \
+                 privileges.', regbase + regpath)
+        logger.error('Run this script as administrator to resolve.')
+        print('Permission denied to read registry data at %s.', regpath)
+
         ipath = input('Please enter the Steam installation directory: ')
 
     finally:
-        # Ensure key is closed if it was opened at any point in time.
+        # Ensure registry key is closed after reading as applicable.
         if regkey is not None:
+            logger.info('Registry data at %s used to determine installation' +
+                        ' path', regbase + regpath)
+            logger.info('Steam installation path found at %s', ipath)
+
             winreg.CloseKey(regkey)
 
         return ipath.strip()
@@ -80,10 +105,12 @@ def analyze_vdf(steamdir, nodir=False, library=None):
     gamedir = {}
     cleanable = {}
 
-    # Ensure that the provided path for steamdir is valid.
+    # validate steamdirectory or prompt for input when invalid or missing
     while os.path.isdir(steamdir) and 'Steam' not in steamdir:
+        logger.warning('Invalid or missing directory at %s', steamdir)
         steamdir = os.path.abspath(
-            input('Invalid Steam directory, please re-enter the directory: '))
+            input('Invalid or missing directory, ' +
+                  'please re-enter the directory: '))
 
     # Validate Steam installation path.
     if os.path.isdir(steamdir) and 'Steam' in steamdir:
@@ -91,9 +118,13 @@ def analyze_vdf(steamdir, nodir=False, library=None):
         if sappscommon not in steamdir:
             steamdir += sappscommon
 
+        logger.info('Game installations located at %s', steamdir)
+
     # Gather game directories from default path.
-    print('Checking default installation directory. Please wait...')
+    logger.info('Analyzing %s', steamdir)
+    print('Analyzing %s' % (steamdir))
     for dir in os.listdir(steamdir):
+        # if path is a directory and not already in list add it
         if os.path.isdir(os.path.join(steamdir, dir)):
             if dir not in gamedir:
                 gamedir[os.path.join(steamdir, dir)] = ''
@@ -111,8 +142,10 @@ def analyze_vdf(steamdir, nodir=False, library=None):
                     # remove extra quotes from input string
                     lib += sappscommon
 
-            # Append game directories found in specified library if present.
-            print('Checking library ' + lib + ' Please wait...')
+            logger.info('Analyzing library at %s', lib)
+            print('Analyzing library %s' % (lib))
+
+            # validate game directories in specified library
             if library is not None and sappscommon in lib \
                     and os.path.isdir(lib):
                 for dir in os.listdir(lib):
@@ -142,6 +175,7 @@ def analyze_vdf(steamdir, nodir=False, library=None):
         for rfile in redistfiles:
             cleanable[rfile] = ((os.path.getsize(rfile) / 1024) / 1024)
 
+    # get all vdf files from game directories for review
     for game in gamedir:
         files = os.listdir(game)
         for file in files:
@@ -156,7 +190,6 @@ def analyze_vdf(steamdir, nodir=False, library=None):
 
     # Substitute game path for %INSTALLDIR% within .vdf file.
     for game in cleangamedir:
-        # Use with to close files when done reading for easy cleanup.
         with open(cleangamedir[game]) as vdffile:
             for line in vdffile:
                 # Only read lines with an installation specified.
@@ -177,6 +210,11 @@ def analyze_vdf(steamdir, nodir=False, library=None):
                             if rc in filepath:
                                 cleanable[filepath] = (
                                     (os.path.getsize(filepath) / 1024) / 1024)
+
+    # log all detected files and their size
+    for file in cleanable:
+        logger.info('File %s found with size %s MB',
+                    file, format(cleanable[file], '.2f'))
 
     # Return the list of cleanable files and their approximate size.
     return cleanable
@@ -234,16 +272,19 @@ def clean_data(filelist, preview=False):
                     if os.path.isfile(file) and os.path.exists(file):
                         os.remove(file)
                         removed += 1
-                    else:
-                        print('Error removing file: %s' % (file))
+                        logger.info('File %s removed successfully', file)
 
                 except FileNotFoundError:
+                    logger.error('File %s not found, skipping...', file)
                     print('File %s not found, skipping.' % (file))
 
                 except PermissionError:
-                    print('Permission denied on file %s' % (file))
+                    logger.error('Permission denied to file %s skipping...',
+                                 file)
+                    print('Permission denied to file %s skipping...' % (file))
 
-        print('\n%s files successfully removed.' % (removed))
+        logger.info('%s files removed successfully.', removed)
+        print('\n%s files removed successfully.' % (removed))
 
 
 def dry_run(cleanable, preview=False):
@@ -254,13 +295,18 @@ def dry_run(cleanable, preview=False):
     for cfile in cleanable:
         totalsize += cleanable[cfile]
 
-    print('\nTotal number of files to be cleaned', filecount)
-    print('Estimated disk space saved %s MB' % format(totalsize, '.2f'), '\n')
+    logger.info('Total number of files marked for removal: %s', filecount)
+    logger.info('Estimated disk space saved after removal: %s MB',
+                format(totalsize, '.2f'))
+
+    print('\nTotal number of files marked for removal: %s' % filecount)
+    print('Estimated disk space saved after removal: %s MB' %
+          format(totalsize, '.2f'), '\n')
 
     if preview:
         for cfile in cleanable:
-            print('File path: %s' % cfile)
-            print('File size: %s MB' % format(cleanable[cfile], '.2f'))
+            print('File path: %s' % (cfile))
+            print('File size: %s MB' % (format(cleanable[cfile], '.2f')))
 
 
 if __name__ == "__main__":
