@@ -75,7 +75,7 @@ def analyze_vdf(steamdir, nodir=False, library=None):
     """ Find all .vdf files in provided locations and
     extract file locations of redistributable data. """
 
-    sappscommon = r'\steamapps\common'
+    sappscommon = r'\SteamApps\common'
 
     gamedir = {}
     cleanable = {}
@@ -104,9 +104,11 @@ def analyze_vdf(steamdir, nodir=False, library=None):
 
         # Check all provided libraries.
         for lib in liblist:
+            lib = lib.replace('"', '')
             # Verify library path exists and append games directory.
-            if os.path.isdir(lib) and 'Steam' in lib:
+            if os.path.isdir(lib) and 'steam' in lib:
                 if sappscommon not in lib:
+                    # remove extra quotes from input string
                     lib += sappscommon
 
             # Append game directories found in specified library if present.
