@@ -4,7 +4,7 @@
 # Version:      0.3.0
 # Release Date: 2015.10.03
 # Description:  Script to find and remove extraneous files from
-#               Steam game installations.
+#               Steam game installation directories.
 
 from linecache import clearcache, getline
 from platform import architecture as pa
