@@ -1,14 +1,13 @@
 ﻿#!/usr/bin/env python3
 
 # Filename:         steamclean.py
-# Realease Date:    2015.11.21
+# Modified On:      2015.11.21
 # Description:      Script to find and remove extraneous files from
 #                   Steam game installation directories.
 
-from linecache import clearcache, getline
+from datetime import date
 from platform import architecture as pa
 from platform import platform as pp
-from time import strftime
 import argparse
 import logging
 import os
@@ -22,7 +21,7 @@ logger = logging.getLogger('steamclean')
 logger.setLevel(logging.INFO)
 logformatter = logging.Formatter('%(asctime)s %(levelname)s: %(message)s',
                                  datefmt='%Y-%m-%d %H:%M:%S')
-fh = logging.FileHandler('steamclean_' + strftime('%Y-%m-%d') + '.log')
+fh = logging.FileHandler('steamclean_' + str(date.today()) + '.log')
 fh.setFormatter(logformatter)
 logger.addHandler(fh)
 
@@ -38,12 +37,11 @@ def print_header():
     # Attempt to read filename and modified date from cache and print if found,
     # otherwise print no header information.
     try:
-        filename = getline(__file__, 3).split(':')[1].strip()
-        reldate = getline(__file__, 4).split(':')[1].strip()
-        clearcache()
+        filename = os.path.basename(__file__)
+        moddate = str(date.fromtimestamp(os.path.getmtime(__file__)))
 
-        print('%s released %s \n' % (filename, reldate))
-        logger.info('Starting script ' + filename + ' released ' + reldate)
+        print('%s released %s \n' % (filename, moddate))
+        logger.info('Starting script ' + filename + ' released ' + moddate)
         logger.info('Current operating system: ' + pp() + ' ' + pa()[0])
     except:
         logger.warning('Unable to script information from file %s', filename)
