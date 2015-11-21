@@ -1,10 +1,9 @@
 ﻿#!/usr/bin/env python3
 
-# Filename:     steamclean.py
-# Version:      0.3.0
-# Release Date: 2015.10.03
-# Description:  Script to find and remove extraneous files from
-#               Steam game installation directories.
+# Filename:         steamclean.py
+# Realease Date:    2015.11.21
+# Description:      Script to find and remove extraneous files from
+#                   Steam game installation directories.
 
 from linecache import clearcache, getline
 from platform import architecture as pa
@@ -29,25 +28,25 @@ logger.addHandler(fh)
 
 
 def print_header():
-    """ Clear terminal window and print script name and version. """
+    """ Clear terminal window and print script name and release date. """
 
     if os.name == 'nt':
         os.system('cls')
     elif os.name == 'posix':
         os.system('clear')
 
-    # Attempt to read filename and version from cache and print if found,
+    # Attempt to read filename and modified date from cache and print if found,
     # otherwise print no header information.
     try:
         filename = getline(__file__, 3).split(':')[1].strip()
-        version = getline(__file__, 4).split(':')[1].strip()
+        reldate = getline(__file__, 4).split(':')[1].strip()
         clearcache()
 
-        print('%s v%s \n' % (filename, version))
-        logger.info('Starting script ' + filename + ' v' + version)
+        print('%s released %s \n' % (filename, reldate))
+        logger.info('Starting script ' + filename + ' released ' + reldate)
         logger.info('Current operating system: ' + pp() + ' ' + pa()[0])
     except:
-        logger.warning('Unable to read version information from script file.')
+        logger.warning('Unable to script information from file %s', filename)
         pass
 
 
@@ -220,7 +219,7 @@ def analyze_vdf(steamdir, nodir=False, library=None):
     return cleanable
 
 
-def clean_data(filelist, preview=False):
+def clean_data(filelist):
     """ Function to remove found data from installed game directories.
         Will prompt user for a list of files to exclude with the proper
         options otherwise all will be deleted."""
@@ -228,26 +227,6 @@ def clean_data(filelist, preview=False):
     dry_run(filelist)
     confirm = ''
     excludes = []
-
-    # Print a list of all files found and their index for user review.
-    if preview:
-        for index, file in enumerate(filelist):
-            print(index, file, '\n')
-
-        # Request index of all files that should be excluded from
-        # deletion and ensure it is valid for the number of files present.
-        if len(filelist) > 0:
-            while True:
-                userinput = input(
-                    'Enter file number to exclude from deletion '
-                    '(no input to continue): ')
-                if userinput != '' and int(userinput) <= len(filelist) \
-                        and int(userinput) >= 0:
-                    if int(userinput) not in excludes:
-                        excludes.append(int(userinput))
-                    continue
-                else:
-                    break
 
     # Print a warning that files will be permanantly deleted and
     # inform user they can exclude files with the -p option.
@@ -287,7 +266,7 @@ def clean_data(filelist, preview=False):
         print('\n%s files removed successfully.' % (removed))
 
 
-def dry_run(cleanable, preview=False):
+def dry_run(cleanable):
     """ Print a report of removable files and thier estimated size. """
 
     filecount = len(cleanable)
@@ -303,19 +282,11 @@ def dry_run(cleanable, preview=False):
     print('Estimated disk space saved after removal: %s MB' %
           format(totalsize, '.2f'), '\n')
 
-    if preview:
-        for cfile in cleanable:
-            print('File path: %s' % (cfile))
-            print('File size: %s MB' % (format(cleanable[cfile], '.2f')))
-
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description='Find and clean extraneous files from game directories '
                     'including various Windows redistributables.')
-    parser.add_argument('-p', '--preview',
-                        help='Preview the list of removable data.',
-                        action='store_true')
     parser.add_argument('--dryrun',
                         help='Run script without allowing any file removal.',
                         action='store_true')
@@ -334,9 +305,9 @@ if __name__ == "__main__":
 
         if len(cleanable) > 0:
             if args.dryrun:
-                dry_run(cleanable, args.preview)
+                dry_run(cleanable)
             else:
-                clean_data(cleanable, args.preview)
+                clean_data(cleanable)
         else:
             print('\nCongratulations! No files were found for removal. ')
     elif os.name == 'posix':
