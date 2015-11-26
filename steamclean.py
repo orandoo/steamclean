@@ -39,8 +39,8 @@ def print_header():
         filename = os.path.basename(__file__)
         publishon = str(date.fromtimestamp(os.path.getmtime(__file__)))
 
-        print('%s released %s \n' % (filename, publishon))
-        logger.info('Starting script ' + filename + ' released ' + publishon)
+        print('%s last updated %s \n' % (filename, publishon))
+        logger.info('Starting script ' + filename + ' updated ' + publishon)
         logger.info('Current operating system: ' + pp() + ' ' + pa()[0])
     except:
         logger.warning('Unable to script information from file %s', filename)
