@@ -1,7 +1,7 @@
 ﻿#!/usr/bin/env python3
 
 # Filename:         steamclean.py
-# Modified:         2015.11.21
+# Published:        2015.11.26
 # Description:      Script to find and remove extraneous files from
 #                   Steam game installation directories.
 
@@ -37,10 +37,10 @@ def print_header():
     # Attempt to print script name and modified date as header if able
     try:
         filename = os.path.basename(__file__)
-        moddate = str(date.fromtimestamp(os.path.getmtime(__file__)))
+        publishon = str(date.fromtimestamp(os.path.getmtime(__file__)))
 
-        print('%s released %s \n' % (filename, moddate))
-        logger.info('Starting script ' + filename + ' released ' + moddate)
+        print('%s released %s \n' % (filename, publishon))
+        logger.info('Starting script ' + filename + ' released ' + publishon)
         logger.info('Current operating system: ' + pp() + ' ' + pa()[0])
     except:
         logger.warning('Unable to script information from file %s', filename)
