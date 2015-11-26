@@ -16,14 +16,13 @@ Please include the following when creating an issue for it to be addressed as ef
 
 ### Usage ###
 ```
-usage: steamclean.py [-h] [-p] [--dryrun] [--nodir] [-l LIBRARY]
+usage: steamclean.py [-h] [--dryrun] [--nodir] [-l LIBRARY]
 
 Find and clean extraneous files from game directories including various
 Windows redistributables.
 
 optional arguments:
   -h, --help            show this help message and exit
-  -p, --preview         Preview the list of removable data.
   --dryrun              Run script without allowing any file removal.
   --nodir               Do not clean redistributable directories.
   -l LIBRARY, --library LIBRARY
@@ -54,9 +53,3 @@ If a file is removed that should not have been do not panic. Simply verify the g
 Input prompts will continue to be displayed with each additional input. This has no effect on the running script other than cluttering up the terminal.
 
 Using output redirection will not allow input to be sent to the script. If redirecting output use the preview option and simply end the script after a few seconds (Ctrl+C). You can them view the file in any plain text editor and rerun the script normally.
-
-### Upcoming features
-- Better exception handling
-- Simplified exclusion list
-- Ability to disable logging
-- Linux support
