@@ -5,7 +5,7 @@ On Windows systems this will remove files such as DirectX, PhysX, XNA, and Visua
 
 Future support is planned for Linux and Mac operating systems. If you have suggestions for files to be cleaned on these platforms and can aid in testing please let me know.
 
-While I have done my best to ensure this script operates an intended bugs will be present as in any software. In the event you encounter a bug or incorrectly removed file please let me know. Simply create an issue on the scripts GitHub page and I will address it as efficiently as possible.
+While I have done my best to ensure this script operates as intended bugs will be present as in any software. In the event you encounter a bug or incorrectly removed file please let me know. Simply create an issue on the scripts GitHub page and I will address it as efficiently as possible.
 
 *Note: If a file is incorrectly removed for a specific game simply verify the game files. While this may interfere with game mods it will reacquire the missing files.*
 
