@@ -11,6 +11,7 @@ from platform import platform as pp
 import argparse
 import logging
 import os
+import re
 
 if (os.name == 'nt'):
     import winreg
@@ -57,9 +58,13 @@ def win_reg_check():
 
     # use architecture returned to evaluate appropriate registry key
     if arch == '64bit':
+        logger.info('64bit operating system detected')
+
         regpath = r'SOFTWARE\Wow6432Node\Valve\Steam'
         regopts = (winreg.KEY_WOW64_64KEY + winreg.KEY_READ)
     elif arch == '32bit':
+        logger.info('32 bit operating system detected')
+
         regpath = r'SOFTWARE\Valve\Steam'
         regopts = winreg.KEY_READ
     else:
@@ -156,16 +161,21 @@ def analyze_vdf(steamdir, nodir=False, library=None):
             for item in os.listdir(game):
                 pathlist = os.path.abspath(game + '\\' + item)
                 if os.path.isdir(pathlist) and os.path.exists(pathlist):
-                    # Verify the files being added are valid and exist.
-                    if ('directx' in item or 'redist' in item or
-                            'Redist' in item) and 'Miles' not in item:
-                        # Check subdirectories or applicable files.
+                    # Determine if path may contain redist file types
+                    fileregex = re.compile(r'(.*)(directx|redist|miles)(.*)',
+                                           re.IGNORECASE)
+                    if fileregex.match(pathlist):
+                        # Verify the files being added are valid and exist.
                         for (path, dirs, files) in os.walk(game + '\\' + item):
                             for file in files:
                                 filepath = os.path.abspath(path + '\\' + file)
-                                if (os.path.isfile(filepath) and
-                                        os.path.exists(filepath)):
-                                    redistfiles.append(filepath)
+                                # Check for valid installer extensions
+                                extregex = re.compile(r'(cab|exe|msi)',
+                                                      re.IGNORECASE)
+                                if extregex.search(filepath):
+                                    if (os.path.isfile(filepath) and
+                                            os.path.exists(filepath)):
+                                        redistfiles.append(filepath)
 
         # Add filename and size to cleanable list.
         for rfile in redistfiles:
