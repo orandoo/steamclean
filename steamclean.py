@@ -1,7 +1,7 @@
 ﻿#!/usr/bin/env python3
 
 # Filename:         steamclean.py
-# Published:        2015.11.26
+# Published:        2015.11.27
 # Description:      Script to find and remove extraneous files from
 #                   Steam game installation directories.
 
@@ -101,8 +101,6 @@ def analyze_vdf(steamdir, nodir=False, library=None):
     """ Find all .vdf files in provided locations and
     extract file locations of redistributable data. """
 
-    sappscommon = r'\SteamApps\common'
-
     gamedir = {}
     cleanable = {}
 
@@ -116,14 +114,14 @@ def analyze_vdf(steamdir, nodir=False, library=None):
     # Validate Steam installation path.
     if os.path.isdir(steamdir) and 'Steam' in steamdir:
         # Append steamapps directory if required.
-        if sappscommon not in steamdir:
-            steamdir += sappscommon
+        if 'SteamApps' not in steamdir:
+            steamdir = os.path.join(steamdir, 'SteamApps', 'common')
 
         logger.info('Game installations located at %s', steamdir)
 
     # Gather game directories from default path.
-    logger.info('Analyzing %s', steamdir)
-    print('Analyzing %s' % (steamdir))
+    logger.info('Checking %s', steamdir)
+    print('Checking %s' % (steamdir))
     for dir in os.listdir(steamdir):
         # if path is a directory and not already in list add it
         if os.path.isdir(os.path.join(steamdir, dir)):
@@ -139,15 +137,15 @@ def analyze_vdf(steamdir, nodir=False, library=None):
             lib = lib.replace('"', '')
             # Verify library path exists and append games directory.
             if os.path.isdir(lib) and 'steam' in lib:
-                if sappscommon not in lib:
+                if 'SteamApps' not in lib:
                     # remove extra quotes from input string
-                    lib += sappscommon
+                    lib = os.path.join(lib, 'SteamApps', 'common')
 
-            logger.info('Analyzing library at %s', lib)
-            print('Analyzing library %s' % (lib))
+            logger.info('Checking library at %s', lib)
+            print('Checking library at %s' % (lib))
 
             # validate game directories in specified library
-            if library is not None and sappscommon in lib \
+            if library is not None and 'SteamApps' in lib \
                     and os.path.isdir(lib):
                 for dir in os.listdir(lib):
                     if os.path.isdir(os.path.join(lib, dir)):
@@ -237,12 +235,13 @@ def clean_data(filelist):
 
     # Print a warning that files will be permanantly deleted and
     # inform user they can exclude files with the -p option.
-    print('WARNING: All files will be permanantly deleted! If you wish to '
-          'review the list of files to be removed please re-run this '
-          'script with the -p option.\n')
+    print('WARNING: All files will be permanantly deleted! Please see the log '
+          'file for specific file information if desired.\n')
     while True:
         confirm = input('Do you wish to remove extra files [y/N]: ').lower()
-        if confirm != 'y' and confirm != 'n':
+        if confirm == '':
+            break
+        elif confirm != 'y' and confirm != 'n':
             continue
         else:
             break
@@ -323,4 +322,4 @@ if __name__ == "__main__":
     else:
         print('Invalid operating system detected.')
 
-    input('Press Enter to exit...')
+    input('\nPress Enter to exit...')
