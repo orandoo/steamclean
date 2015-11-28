@@ -97,16 +97,18 @@ def win_reg_check():
         return ipath.strip()
 
 
-def fix_path(dir):
+def fix_game_path(dir):
     """ Fix path to include proper directory structure if needed. """
     if 'SteamApps' not in dir:
         dir = os.path.join(dir, 'SteamApps', 'common')
-    return dir
+    # normalize path before returning
+    return os.path.abspath(dir)
 
 
 def find_redist(steamdir, nodir=False, library=None):
-    """ Find all .vdf files in provided locations and
-    extract file locations of redistributable data. """
+    """ Find all redistributable files and read .vdf files to determine
+        all files which can be safely removed. Always check .vdf file
+        for removable data but include standard redistributable paths. """
 
     gamedirs = {}        # list of all valid game directories found
     cleanable = {}       # list of all files to be removed
@@ -120,11 +122,7 @@ def find_redist(steamdir, nodir=False, library=None):
 
     # Validate Steam installation path.
     if os.path.isdir(steamdir) and 'Steam' in steamdir:
-        steamdir = fix_path(steamdir)
-        # Append steamapps directory if required.
-        #if 'SteamApps' not in steamdir:
-            #steamdir = os.path.join(steamdir, 'SteamApps', 'common')
-
+        steamdir = fix_game_path(steamdir)
         logger.info('Game installations located at %s', steamdir)
 
     # Gather game directories from default path.
@@ -137,14 +135,13 @@ def find_redist(steamdir, nodir=False, library=None):
                 gamedirs[os.path.join(steamdir, dir)] = ''
 
     if library is not None:
-        # Force lower case and create a list holding each library
+        # create list of all provided library paths
         liblist = library.lower().split(',')
 
         # Check all provided libraries.
         for lib in liblist:
-            # remove quotes from input values to sanitize input
-            lib = lib.replace('"', '')
-            lib = fix_path(lib)
+            # correct path issues and validate path
+            lib = fix_game_path(lib)
             # Verify library path exists and is a directory
             if not os.path.exists(lib) or not os.path.isdir(lib):
                 logger.warning('Ignoring invalid directory at %s', lib)
@@ -160,6 +157,8 @@ def find_redist(steamdir, nodir=False, library=None):
                     if os.path.exists(libsubdir):
                         if libsubdir not in gamedirs:
                             gamedirs[libsubdir] = ''
+    else:
+        logging.info('No additional libraries provided.')
 
     # nodir option to skip cleaning redistributable subdirectories
     if not nodir:
@@ -195,7 +194,7 @@ def find_redist(steamdir, nodir=False, library=None):
         files = os.listdir(game)
         for file in files:
             if '.vdf' in file:
-                gamedirs[game] = os.path.abspath(game + '\\' + file)
+                gamedirs[game] = os.path.abspath(os.path.join(game, file))
 
     # Scrub dictionary of entries that do not have a valid .vdf file.
     cleangamedirs = {}
@@ -246,8 +245,8 @@ def clean_data(filelist):
 
     # Print a warning that files will be permanantly deleted and
     # inform user they can exclude files with the -p option.
-    print('\nWARNING: All files will be permanantly deleted!\nPlease see the log '
-          'file for specific file information if desired.\n')
+    print('\nWARNING: All files will be permanantly deleted!\n'
+          'Please see the log file for specific file information.\n')
     while True:
         confirm = input('Do you wish to remove extra files [y/N]: ').lower()
         if confirm == '':
