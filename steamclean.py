@@ -97,12 +97,12 @@ def win_reg_check():
         return ipath.strip()
 
 
-def analyze_vdf(steamdir, nodir=False, library=None):
+def find_redist(steamdir, nodir=False, library=None):
     """ Find all .vdf files in provided locations and
     extract file locations of redistributable data. """
 
-    gamedir = {}        # list of all valid game directories found
-    cleanable = {}      # list of all files to be removed
+    gamedirs = {}        # list of all valid game directories found
+    cleanable = {}       # list of all files to be removed
 
     # validate steamdirectory or prompt for input when invalid or missing
     while os.path.isdir(steamdir) and 'Steam' not in steamdir:
@@ -125,8 +125,8 @@ def analyze_vdf(steamdir, nodir=False, library=None):
     for dir in os.listdir(steamdir):
         # if path is a directory and not already in list add it
         if os.path.isdir(os.path.join(steamdir, dir)):
-            if dir not in gamedir:
-                gamedir[os.path.join(steamdir, dir)] = ''
+            if dir not in gamedirs:
+                gamedirs[os.path.join(steamdir, dir)] = ''
 
     if library is not None:
         # Force lower case and create a list holding each library
@@ -153,52 +153,54 @@ def analyze_vdf(steamdir, nodir=False, library=None):
             for dir in os.listdir(lib):
                 libsubdir = os.path.join(lib, dir)
                 if os.path.exists(libsubdir):
-                    if libsubdir not in gamedir:
-                        gamedir[libsubdir] = ''
+                    if libsubdir not in gamedirs:
+                        gamedirs[libsubdir] = ''
 
+    # nodir option to skip cleaning redistributable subdirectories
     if not nodir:
-        # Build a list of redistributable files found in common folders.
+        # build list of redist files from subdirectories when applicable
         redistfiles = []
-        for game in gamedir:
-            for item in os.listdir(game):
-                pathlist = os.path.abspath(game + '\\' + item)
-                if os.path.isdir(pathlist) and os.path.exists(pathlist):
-                    # Determine if path may contain redist file types
-                    fileregex = re.compile(r'(.*)(directx|redist|miles)(.*)',
-                                           re.IGNORECASE)
-                    if fileregex.match(pathlist):
-                        # Verify the files being added are valid and exist.
-                        for (path, dirs, files) in os.walk(game + '\\' + item):
-                            for file in files:
-                                filepath = os.path.abspath(path + '\\' + file)
-                                # Check for valid installer extensions
-                                extregex = re.compile(r'(cab|exe|msi)',
-                                                      re.IGNORECASE)
-                                if extregex.search(filepath):
-                                    if (os.path.isfile(filepath) and
-                                            os.path.exists(filepath)):
-                                        redistfiles.append(filepath)
+        # check each subdirectory for matching values to determine valid files
+        for gamedir in gamedirs:
+            for subdir in os.listdir(gamedir):
+                sdpath = os.path.abspath(os.path.join(gamedir, subdir))
+                dirregex = re.compile(r'(.*)(directx|redist|miles)(.*)',
+                                      re.IGNORECASE)
+                if dirregex.match(sdpath):
+                    # build list of all subdirectories and files from
+                    # root (game subdirectory) that are valid for removal
+                    for (root, dirs, files) in os.walk(sdpath):
+                        for file in files:
+                            # build path to each found file and verify
+                            # extension is a valid installation file
+                            filepath = os.path.join(root, file)
+                            extregex = re.compile(r'(cab|exe|msi)',
+                                                  re.IGNORECASE)
+                            if extregex.search(filepath):
+                                if os.path.exists(filepath) and \
+                                   os.path.isfile(filepath):
+                                    redistfiles.append(filepath)
 
         # Add filename and size to cleanable list.
         for rfile in redistfiles:
             cleanable[rfile] = ((os.path.getsize(rfile) / 1024) / 1024)
 
     # get all vdf files from game directories for review
-    for game in gamedir:
+    for game in gamedirs:
         files = os.listdir(game)
         for file in files:
             if '.vdf' in file:
-                gamedir[game] = os.path.abspath(game + '\\' + file)
+                gamedirs[game] = os.path.abspath(game + '\\' + file)
 
     # Scrub dictionary of entries that do not have a valid .vdf file.
-    cleangamedir = {}
-    for game in gamedir:
-        if gamedir[game] != '':
-            cleangamedir[game] = gamedir[game]
+    cleangamedirs = {}
+    for game in gamedirs:
+        if gamedirs[game] != '':
+            cleangamedirs[game] = gamedirs[game]
 
     # Substitute game path for %INSTALLDIR% within .vdf file.
-    for game in cleangamedir:
-        with open(cleangamedir[game]) as vdffile:
+    for game in cleangamedirs:
+        with open(cleangamedirs[game]) as vdffile:
             for line in vdffile:
                 # Only read lines with an installation specified.
                 if 'INSTALLDIR' in line:
@@ -233,13 +235,13 @@ def clean_data(filelist):
         Will prompt user for a list of files to exclude with the proper
         options otherwise all will be deleted."""
 
-    dry_run(filelist)
+    print_stats(filelist)
     confirm = ''
     excludes = []
 
     # Print a warning that files will be permanantly deleted and
     # inform user they can exclude files with the -p option.
-    print('WARNING: All files will be permanantly deleted! Please see the log '
+    print('\nWARNING: All files will be permanantly deleted!\nPlease see the log '
           'file for specific file information if desired.\n')
     while True:
         confirm = input('Do you wish to remove extra files [y/N]: ').lower()
@@ -276,7 +278,7 @@ def clean_data(filelist):
         print('\n%s files removed successfully.' % (removed))
 
 
-def dry_run(cleanable):
+def print_stats(cleanable):
     """ Print a report of removable files and thier estimated size. """
 
     filecount = len(cleanable)
@@ -290,7 +292,7 @@ def dry_run(cleanable):
 
     print('\nTotal number of files marked for removal: %s' % filecount)
     print('Estimated disk space saved after removal: %s MB' %
-          format(totalsize, '.2f'), '\n')
+          format(totalsize, '.2f'))
 
 
 if __name__ == "__main__":
@@ -311,11 +313,11 @@ if __name__ == "__main__":
     print_header()
 
     if os.name == 'nt':
-        cleanable = analyze_vdf(win_reg_check(), args.nodir, args.library)
+        cleanable = find_redist(win_reg_check(), args.nodir, args.library)
 
         if len(cleanable) > 0:
             if args.dryrun:
-                dry_run(cleanable)
+                print_stats(cleanable)
             else:
                 clean_data(cleanable)
         else:
