@@ -234,6 +234,25 @@ def find_redist(steamdir, nodir=False, library=None):
     return cleanable
 
 
+def get_excludes():
+    """ Read lines from excludes.txt to build a list of files to ignore. """
+
+    if os.path.exists('excludes.txt'):
+        excludes = []       # list of data to exclude from excludes.txt
+        excluderegex = ''   # pattern to use for regex matching
+
+        with open('excludes.txt', 'r') as excludesfile:
+            for line in excludesfile:
+                excludes.append(line)
+
+            if excludes:
+                # if items are excluded for the regex pattern with
+                # case insensitive matches for all items
+                return re.compile('|'.join(excludes), re.IGNORECASE)
+    else:
+        return None
+
+
 def clean_data(filelist):
     """ Function to remove found data from installed game directories.
         Will prompt user for a list of files to exclude with the proper
@@ -241,7 +260,8 @@ def clean_data(filelist):
 
     print_stats(filelist)
     confirm = ''
-    excludes = []
+
+    excludes = get_excludes()   # compiled regex pattern
 
     # Print a warning that files will be permanantly deleted and
     # inform user they can exclude files with the -p option.
@@ -260,26 +280,34 @@ def clean_data(filelist):
     # count of removed items.
     if confirm == 'y':
         removed = 0
+        excluded = 0
 
         for index, file in enumerate(filelist):
-            if index not in excludes:
-                try:
-                    if os.path.isfile(file) and os.path.exists(file):
+            try:
+                if os.path.isfile(file) and os.path.exists(file):
+                    if excludes and excludes.search(file):
+                        # skip removal for excluded files
+                        excluded += 1
+                        logger.info('%s excluded, skipping...', file)
+                    else:
+                        # only remove files which are not excluded
                         os.remove(file)
                         removed += 1
                         logger.info('File %s removed successfully', file)
 
-                except FileNotFoundError:
-                    logger.error('File %s not found, skipping...', file)
-                    print('File %s not found, skipping.' % (file))
+            except FileNotFoundError:
+                logger.error('File %s not found, skipping...', file)
+                print('File %s not found, skipping.' % (file))
 
-                except PermissionError:
-                    logger.error('Permission denied to file %s skipping...',
-                                 file)
-                    print('Permission denied to file %s skipping...' % (file))
+            except PermissionError:
+                logger.error('Permission denied to file %s skipping...',
+                             file)
+                print('Permission denied to file %s skipping...' % (file))
 
-        logger.info('%s files removed successfully.', removed)
-        print('\n%s files removed successfully.' % (removed))
+        logger.info('%s file(s) removed successfully', removed)
+        logger.info('%s file(s) excluded and not removed', excluded)
+        print('\n%s file(s) removed successfully' % (removed))
+        print('%s file(s) excluded and not removed' % (excluded))
 
 
 def print_stats(cleanable):
