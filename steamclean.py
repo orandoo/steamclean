@@ -97,6 +97,13 @@ def win_reg_check():
         return ipath.strip()
 
 
+def fix_path(dir):
+    """ Fix path to include proper directory structure if needed. """
+    if 'SteamApps' not in dir:
+        dir = os.path.join(dir, 'SteamApps', 'common')
+    return dir
+
+
 def find_redist(steamdir, nodir=False, library=None):
     """ Find all .vdf files in provided locations and
     extract file locations of redistributable data. """
@@ -113,9 +120,10 @@ def find_redist(steamdir, nodir=False, library=None):
 
     # Validate Steam installation path.
     if os.path.isdir(steamdir) and 'Steam' in steamdir:
+        steamdir = fix_path(steamdir)
         # Append steamapps directory if required.
-        if 'SteamApps' not in steamdir:
-            steamdir = os.path.join(steamdir, 'SteamApps', 'common')
+        #if 'SteamApps' not in steamdir:
+            #steamdir = os.path.join(steamdir, 'SteamApps', 'common')
 
         logger.info('Game installations located at %s', steamdir)
 
@@ -136,13 +144,9 @@ def find_redist(steamdir, nodir=False, library=None):
         for lib in liblist:
             # remove quotes from input values to sanitize input
             lib = lib.replace('"', '')
+            lib = fix_path(lib)
             # Verify library path exists and is a directory
-            if os.path.exists(lib) and os.path.isdir(lib):
-                # ensure full SteamApps path is appended to the input
-                if 'SteamApps' not in lib:
-                    lib = os.path.join(lib, 'SteamApps', 'common')
-            else:
-                # log missing or invalid paths and skip to next library
+            if not os.path.exists(lib) or not os.path.isdir(lib):
                 logger.warning('Ignoring invalid directory at %s', lib)
                 continue
 
@@ -150,11 +154,12 @@ def find_redist(steamdir, nodir=False, library=None):
             print('Checking library at %s' % (lib))
 
             # build list of all valid game directories in each library
-            for dir in os.listdir(lib):
-                libsubdir = os.path.join(lib, dir)
-                if os.path.exists(libsubdir):
-                    if libsubdir not in gamedirs:
-                        gamedirs[libsubdir] = ''
+            if os.path.exists(lib) and os.path.isdir(lib):
+                for dir in os.listdir(lib):
+                    libsubdir = os.path.join(lib, dir)
+                    if os.path.exists(libsubdir):
+                        if libsubdir not in gamedirs:
+                            gamedirs[libsubdir] = ''
 
     # nodir option to skip cleaning redistributable subdirectories
     if not nodir:
