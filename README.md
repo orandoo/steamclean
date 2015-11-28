@@ -42,6 +42,8 @@ python steamclean.py
 python steamclean.py -l "D:\Program Files (x86)\Steam"
 ```
 
+To exclude files fromt he removal, simply create a file called excludes.txt in the same directory as this script with one line per item to exclude. Excludes are not case sensitive but must be on individual lines to be valid.
+
 ### Troubleshooting
 This was tested on my own system and I noticed no issues with my games. I took care to filter out as many files as possible and to limit the scope. 
 
