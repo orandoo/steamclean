@@ -5,6 +5,7 @@
 # Description:      Script to find and remove extraneous files from
 #                   Steam game installation directories.
 
+from codecs import StreamReader
 from datetime import date
 from platform import architecture as pa
 from platform import platform as pp
@@ -241,14 +242,14 @@ def get_excludes():
         excludes = []       # list of data to exclude from excludes.txt
         excluderegex = ''   # pattern to use for regex matching
 
+        # use StreamReader to automatically create excludes list
         with open('excludes.txt', 'r') as excludesfile:
-            for line in excludesfile:
-                excludes.append(line)
+            excludes = StreamReader.readlines(excludesfile)
 
-            if excludes:
-                # if items are excluded for the regex pattern with
-                # case insensitive matches for all items
-                return re.compile('|'.join(excludes), re.IGNORECASE)
+        if excludes:
+            # if items are excluded for the regex pattern with
+            # case insensitive matches for all items
+            return re.compile('|'.join(excludes), re.IGNORECASE)
     else:
         return None
 
