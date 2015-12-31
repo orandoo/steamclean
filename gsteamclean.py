@@ -30,6 +30,8 @@ class SdirFrame:
         self.sdir_frame.pack(side='top')
 
     def set_sdir(self):
+        ''' Simply set the Steam directory from the dialog.'''
+
         self.sdir.set(gSteamclean.get_dir())
 
 
@@ -52,6 +54,8 @@ class LibraryFrame:
         self.lib_frame.pack(side='top')
 
     def add_library(self):
+        ''' Insert every selected directory chosen from the dialog.'''
+
         self.lib_list.insert(END, gSteamclean.get_dir())
 
 
