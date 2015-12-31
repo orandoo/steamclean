@@ -12,7 +12,7 @@ class SdirFrame:
         self.sdir_frame = ttk.Frame(parent, padding=4)
 
         self.sdir_label = ttk.Label(self.sdir_frame, text='Steam directory:')
-        self.sdir_label.pack(padx=4, side='left')
+        self.sdir_label.grid(column=0, row=0, padx=4, sticky='w')
 
         # create a readonly entry field for the Steam directory,
         # this is to be selected via a dialog to ensure it is valid
@@ -20,17 +20,15 @@ class SdirFrame:
         self.sdir = StringVar()
         self.sdir_entry = ttk.Entry(self.sdir_frame, width=48,
                                     textvariable=self.sdir, state='readonly')
-        self.sdir_entry.pack(padx=4, side='left')
+        self.sdir_entry.grid(column=1, row=0, padx=4, sticky='w')
 
         # create a select button which will open a select directory dialog
         self.sdir_button = ttk.Button(self.sdir_frame, text='...', width=4,
-                                      command=self.select_dir)
-        self.sdir_button.pack(padx=4, side='left')
+                                      command=lambda:
+                                      self.sdir.set(gSteamclean.get_dir()))
+        self.sdir_button.grid(column=2, row=0, padx=4, sticky='w')
 
         self.sdir_frame.pack(side='top')
-
-    def select_dir(self):
-        self.sdir.set(filedialog.askdirectory(initialdir=syspath[0]))
 
 
 class LibraryFrame:
@@ -40,12 +38,15 @@ class LibraryFrame:
         self.lib_frame = ttk.Frame(parent, padding=4)
 
         self.lib_label = ttk.Label(self.lib_frame, text='Library list:')
-        self.lib_label.pack(anchor='nw', padx=4, side='left')
+        self.lib_label.grid(column=0, row=0, padx=4, sticky='n')
 
-        self.lib_list = Listbox(self.lib_frame, width=48, height=4)
-        self.lib_list.pack(padx=4, side='left')
+        self.lib_list = Listbox(self.lib_frame, width=46, height=4)
+        self.lib_list.grid(column=1, row=0, padx=4, sticky='w')
 
-        self.lib_button = ttk.Button(self.lib_frame)
+        self.lib_button = ttk.Button(self.lib_frame, text='Add dir...',
+                                     width=8)
+        self.lib_button.grid(column=3, row=0, padx=4, sticky='w')
+
         self.lib_frame.pack(side='top')
 
 
@@ -54,8 +55,14 @@ class gSteamclean():
 
     def __init__(self):
         self.app = Tk()
+        self.app.title('steamclean')
+        self.app.resizable(height=FALSE, width=FALSE)
+
         self.sdir_frame = SdirFrame(self.app)
         self.lib_frame = LibraryFrame(self.app)
+
+    def get_dir():
+        return filedialog.askdirectory(initialdir=syspath[0])
 
 
 if __name__ == '__main__':
