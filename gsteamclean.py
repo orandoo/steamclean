@@ -44,7 +44,8 @@ class LibraryFrame:
         self.lib_label = ttk.Label(self.lib_frame, text='Library list:')
         self.lib_label.grid(column=0, row=0, padx=4, sticky='n')
 
-        self.lib_list = Listbox(self.lib_frame, width=46, height=4)
+        self.lib_list = Listbox(self.lib_frame, width=46, height=4,
+                                selectmode=SINGLE)
         self.lib_list.grid(column=1, row=0, padx=4, sticky='w')
 
         self.lib_button = ttk.Button(self.lib_frame, text='Add dir...',
