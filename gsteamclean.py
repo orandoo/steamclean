@@ -24,11 +24,13 @@ class SdirFrame:
 
         # create a select button which will open a select directory dialog
         self.sdir_button = ttk.Button(self.sdir_frame, text='...', width=4,
-                                      command=lambda:
-                                      self.sdir.set(gSteamclean.get_dir()))
+                                      command=self.set_sdir)
         self.sdir_button.grid(column=2, row=0, padx=4, sticky='w')
 
         self.sdir_frame.pack(side='top')
+
+    def set_sdir(self):
+        self.sdir.set(gSteamclean.get_dir())
 
 
 class LibraryFrame:
@@ -44,10 +46,13 @@ class LibraryFrame:
         self.lib_list.grid(column=1, row=0, padx=4, sticky='w')
 
         self.lib_button = ttk.Button(self.lib_frame, text='Add dir...',
-                                     width=8)
+                                     width=8, command=self.add_library)
         self.lib_button.grid(column=3, row=0, padx=4, sticky='w')
 
         self.lib_frame.pack(side='top')
+
+    def add_library(self):
+        self.lib_list.insert(END, gSteamclean.get_dir())
 
 
 class gSteamclean():
