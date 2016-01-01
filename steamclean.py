@@ -42,7 +42,7 @@ def print_header():
         filename = os.path.basename(__file__)
         version = getline(__file__, 4).split(':')[1].strip()
 
-        #print('%s v%s \n' % (filename, version))
+        print('%s v%s \n' % (filename, version))
         logger.info('Starting script ' + filename + ' v' + version)
         logger.info('Current operating system: ' + pp() + ' ' + pa()[0])
     except:
@@ -83,7 +83,7 @@ def win_reg_check():
         logger.error('Unable to read registry data at %s due to insufficient \
                  privileges.', regbase + regpath)
         logger.error('Run this script as administrator to resolve.')
-        #print('Permission denied to read registry data at %s.', regpath)
+        print('Permission denied to read registry data at %s.', regpath)
 
         ipath = input('Please enter the Steam installation directory: ')
 
@@ -137,8 +137,11 @@ def find_redist(steamdir, nodir=False, library=None):
                 gamedirs[os.path.join(steamdir, dir)] = ''
 
     if library is not None:
-        # create list of all provided library paths
-        liblist = library.lower().split(',')
+        # split list is provided via cli application as a string
+        if type(library) is str:
+            liblist = library.lower().split(',')
+        else:
+            liblist = library
 
         # Check all provided libraries.
         for lib in liblist:
