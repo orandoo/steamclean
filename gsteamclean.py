@@ -1,8 +1,10 @@
+from sys import path as syspath
+
 from tkinter import *
 from tkinter import filedialog
 from tkinter import ttk
 
-from sys import path as syspath
+import steamclean as sc
 
 
 class SdirFrame(ttk.Frame):
@@ -18,9 +20,18 @@ class SdirFrame(ttk.Frame):
         # this is to be selected via a dialog to ensure it is valid
         # utilize a StringVar in order to set the text is the 'disabled' widget
         self.sdir = StringVar()
-        self.sdir_entry = ttk.Entry(parent, width=64,
+
+        # set button to disabled as this path should be automatically detected
+        # and should not need modified
+        self.sdir_entry = ttk.Entry(parent, width=64, state='readonly',
                                     textvariable=self.sdir)
         self.sdir_entry.grid(column=col+1, row=row, padx=10, pady=2, sticky=W)
+
+        # use steamclean module to check registry for path and set if returned
+        try:
+            self.sdir.set(sc.win_reg_check())
+        except:
+            pass
 
         # create a select button which will open a select directory dialog
         self.sdir_button = ttk.Button(parent, text='...', width=4,
@@ -42,6 +53,7 @@ class LibraryFrame(ttk.Frame):
         self.lib_label = ttk.Label(parent, text='Library list:')
         self.lib_label.grid(column=col, row=row, padx=10, pady=2, sticky=NW)
 
+        # listbox containing all selected additional directories to scan
         self.lib_list = Listbox(parent, width=64, height=4,
                                 selectmode=SINGLE)
         self.lib_list.grid(column=col+1, row=row, padx=10, pady=2, sticky=W)
@@ -63,17 +75,28 @@ class FileDataFrame(ttk.Frame):
         self.list_label = ttk.Label(parent, text='Detected files:')
         self.list_label.grid(column=col, row=row, padx=10, pady=2, sticky=NW)
 
+        # button used to initiate the scan of the specified directories
+        self.scan_button = ttk.Button(parent, text='Scan')
+        self.scan_button.grid(column=col+2, row=row, padx=10, pady=2,
+                              sticky=E)
+
+        # treeview containing details on filenames and sizes of all detected
+        # files from specified directories
         self.fdata_tree = ttk.Treeview(parent)
         self.fdata_tree['columns'] = ('Filesize')
         self.fdata_tree.column('Filesize', stretch=0, width=128)
+
+        # use first column for the path instead of default icon
         self.fdata_tree.heading('#0', text='Path', anchor=W)
         self.fdata_tree.heading('0', text='Filesize', anchor=W)
         self.fdata_tree.grid(column=col, columnspan=3, row=row+1,
                              padx=10, pady=2, sticky=NSEW)
 
-        self.remove_button = ttk.Button(parent, text='Remove all')
+        # button used to remove the detected data
+        self.remove_button = ttk.Button(parent, text='Clean')
         self.remove_button.grid(column=col+2, row=row+2, padx=10,
                                 pady=2, sticky=E)
+
 
 class gSteamclean(Tk):
     ''' Main application class to hold all internal frames for the UI. '''
@@ -88,6 +111,9 @@ class gSteamclean(Tk):
         self.fdata_frame = FileDataFrame(self, row=2)
 
     def get_dir():
+        ''' Method to return the directory selected by the user which should
+            be scanned by the application. '''
+
         return filedialog.askdirectory(initialdir=syspath[0])
 
 

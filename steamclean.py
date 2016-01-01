@@ -1,7 +1,7 @@
 ﻿#!/usr/bin/env python3
 
 # Filename:         steamclean.py
-# Version:          0.4.0
+# Version:          0.4.1
 # Description:      Script to find and remove extraneous files from
 #                   Steam game installation directories.
 
@@ -42,7 +42,7 @@ def print_header():
         filename = os.path.basename(__file__)
         version = getline(__file__, 4).split(':')[1].strip()
 
-        print('%s v%s \n' % (filename, version))
+        #print('%s v%s \n' % (filename, version))
         logger.info('Starting script ' + filename + ' v' + version)
         logger.info('Current operating system: ' + pp() + ' ' + pa()[0])
     except:
@@ -83,7 +83,7 @@ def win_reg_check():
         logger.error('Unable to read registry data at %s due to insufficient \
                  privileges.', regbase + regpath)
         logger.error('Run this script as administrator to resolve.')
-        print('Permission denied to read registry data at %s.', regpath)
+        #print('Permission denied to read registry data at %s.', regpath)
 
         ipath = input('Please enter the Steam installation directory: ')
 
