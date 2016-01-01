@@ -258,28 +258,30 @@ def get_excludes():
         return None
 
 
-def clean_data(filelist):
+def clean_data(filelist, confirm=''):
     """ Function to remove found data from installed game directories.
         Will prompt user for a list of files to exclude with the proper
         options otherwise all will be deleted."""
 
-    print_stats(filelist)
-    confirm = ''
+    filecount, totalsize = print_stats(filelist)
 
     excludes = get_excludes()   # compiled regex pattern
 
-    # Print a warning that files will be permanantly deleted and
-    # inform user they can exclude files with the -p option.
-    print('\nWARNING: All files will be permanantly deleted!\n'
-          'Please see the log file for specific file information.\n')
-    while True:
-        confirm = input('Do you wish to remove extra files [y/N]: ').lower()
-        if confirm == '':
-            break
-        elif confirm != 'y' and confirm != 'n':
-            continue
-        else:
-            break
+    # check if confirm is empty to determine if running from gui or cli
+    # only prompt if running from cli, cannot respond when running from gui
+    if confirm =='':
+        # Print a warning that files will be permanantly deleted and
+        # inform user they can exclude files with the -p option.
+        print('\nWARNING: All files will be permanantly deleted!\n'
+              'Please see the log file for specific file information.\n')
+        while True:
+            confirm = input('Do you wish to remove extra files [y/N]: ').lower()
+            if confirm == '':
+                break
+            elif confirm != 'y' and confirm != 'n':
+                continue
+            else:
+                break
 
     # Confirm removal of all found files. Print list of files not removed and
     # count of removed items.
@@ -314,14 +316,16 @@ def clean_data(filelist):
         print('\n%s file(s) removed successfully' % (removed))
         print('%s file(s) excluded and not removed' % (excluded))
 
+    return filecount, totalsize
+
 
 def print_stats(cleanable):
-    """ Print a report of removable files and thier estimated size. """
+    """ Print a report of removable files and their estimated size. """
 
     filecount = len(cleanable)
     totalsize = 0
     for cfile in cleanable:
-        totalsize += cleanable[cfile]
+        totalsize += float(cleanable[cfile])
 
     logger.info('Total number of files marked for removal: %s', filecount)
     logger.info('Estimated disk space saved after removal: %s MB',
@@ -330,6 +334,8 @@ def print_stats(cleanable):
     print('\nTotal number of files marked for removal: %s' % filecount)
     print('Estimated disk space saved after removal: %s MB' %
           format(totalsize, '.2f'))
+
+    return filecount, totalsize
 
 
 if __name__ == "__main__":
