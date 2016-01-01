@@ -3,6 +3,7 @@ from sys import path as syspath
 
 from tkinter import *
 from tkinter import filedialog
+from tkinter import messagebox
 from tkinter import ttk
 
 import steamclean as sc
@@ -96,6 +97,7 @@ class FileDataFrame(ttk.Frame):
 
         # button used to remove the detected data
         self.remove_button = ttk.Button(parent, text='Clean')
+        self.remove_button['command'] = lambda: gSteamclean.clean_all(parent)
         self.remove_button.grid(column=col+2, row=row+2, padx=10,
                                 pady=2, sticky=E)
 
@@ -120,14 +122,38 @@ class gSteamclean(Tk):
         return ospath.abspath(filedialog.askdirectory(initialdir=syspath[0]))
 
     def scan_dirs(self):
-        print(self.lib_frame.lib_list.get(0, END))
+        # build list of detected files from selected paths
         files = sc.find_redist(steamdir=self.sdir_frame.sdir_entry.get(),
                                library=self.lib_frame.lib_list.get(0, END))
 
+        # add into gui all file paths and sizes formatted to MB
         for k, v in files.items():
             fsize = format(v, '.2f')
+            # insert data into root element at the end of the list
+            # text is the file path, value is filesize
             self.fdata_frame.fdata_tree.insert('', 'end', text=k,
                                                value=fsize)
+
+    def clean_all(self):
+        flist = {}  # dictionary of all file data read from gui
+
+        # loop through treeview items to get the path and filesize
+        treeview = self.fdata_frame.fdata_tree
+        for i in treeview.get_children():
+            # need to use text here as the first column was repurposed
+            flist[treeview.item(i, 'text')] = treeview.item(i, 'value')[0]
+
+        # prompt user to confirm the permanant deletion of detected files
+        confirm_prompt = 'Do you wish to permanantly delete all items?'
+        confirm = messagebox.askyesno('Confirm removal', confirm_prompt)
+
+        # convert response into expected values for clean_data function
+        if confirm is True:
+            fcount, tsize = sc.clean_data(flist, confirm='y')
+            feedback = str(fcount) + ' files removed successfully.'
+            messagebox.showinfo('Success!', feedback)
+        else:
+            sc.clean_data(flist, confirm='n')
 
 if __name__ == '__main__':
     gSteamclean().mainloop()
