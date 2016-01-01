@@ -1,3 +1,4 @@
+from os import path as ospath
 from sys import path as syspath
 
 from tkinter import *
@@ -76,9 +77,10 @@ class FileDataFrame(ttk.Frame):
         self.list_label.grid(column=col, row=row, padx=10, pady=2, sticky=NW)
 
         # button used to initiate the scan of the specified directories
-        self.scan_button = ttk.Button(parent, text='Scan')
-        self.scan_button.grid(column=col+2, row=row, padx=10, pady=2,
-                              sticky=E)
+        self.scan_btn = ttk.Button(parent, text='Scan', command=lambda:
+                                   gSteamclean.scan_dirs(parent))
+        self.scan_btn.grid(column=col+2, row=row, padx=10, pady=2,
+                           sticky=E)
 
         # treeview containing details on filenames and sizes of all detected
         # files from specified directories
@@ -88,7 +90,7 @@ class FileDataFrame(ttk.Frame):
 
         # use first column for the path instead of default icon
         self.fdata_tree.heading('#0', text='Path', anchor=W)
-        self.fdata_tree.heading('0', text='Filesize', anchor=W)
+        self.fdata_tree.heading('0', text='Filesize (MB)', anchor=W)
         self.fdata_tree.grid(column=col, columnspan=3, row=row+1,
                              padx=10, pady=2, sticky=NSEW)
 
@@ -114,8 +116,18 @@ class gSteamclean(Tk):
         ''' Method to return the directory selected by the user which should
             be scanned by the application. '''
 
-        return filedialog.askdirectory(initialdir=syspath[0])
+        # normalize path for consistant display
+        return ospath.abspath(filedialog.askdirectory(initialdir=syspath[0]))
 
+    def scan_dirs(self):
+        print(self.lib_frame.lib_list.get(0, END))
+        files = sc.find_redist(steamdir=self.sdir_frame.sdir_entry.get(),
+                               library=self.lib_frame.lib_list.get(0, END))
+
+        for k, v in files.items():
+            fsize = format(v, '.2f')
+            self.fdata_frame.fdata_tree.insert('', 'end', text=k,
+                                               value=fsize)
 
 if __name__ == '__main__':
     gSteamclean().mainloop()
