@@ -1,3 +1,5 @@
+#!/bin/env python3
+
 from os import path as ospath
 from sys import path as syspath
 
