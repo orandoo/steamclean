@@ -10,7 +10,6 @@ class SdirFrame(ttk.Frame):
 
     def __init__(self, parent, col=0, row=0):
         ttk.Frame.__init__(self, parent)
-        #self.sdir_frame = ttk.Frame(parent)
 
         self.sdir_label = ttk.Label(parent, text='Steam directory:')
         self.sdir_label.grid(column=col, row=row, padx=10, pady=2, sticky=W)
@@ -19,7 +18,7 @@ class SdirFrame(ttk.Frame):
         # this is to be selected via a dialog to ensure it is valid
         # utilize a StringVar in order to set the text is the 'disabled' widget
         self.sdir = StringVar()
-        self.sdir_entry = ttk.Entry(parent, width=48,
+        self.sdir_entry = ttk.Entry(parent, width=64,
                                     textvariable=self.sdir)
         self.sdir_entry.grid(column=col+1, row=row, padx=10, pady=2, sticky=W)
 
@@ -39,12 +38,11 @@ class LibraryFrame(ttk.Frame):
 
     def __init__(self, parent, col=0, row=0):
         ttk.Frame.__init__(self, parent)
-        #self.lib_frame = ttk.Frame(parent, padding=4)
 
         self.lib_label = ttk.Label(parent, text='Library list:')
         self.lib_label.grid(column=col, row=row, padx=10, pady=2, sticky=NW)
 
-        self.lib_list = Listbox(parent, width=48, height=4,
+        self.lib_list = Listbox(parent, width=64, height=4,
                                 selectmode=SINGLE)
         self.lib_list.grid(column=col+1, row=row, padx=10, pady=2, sticky=W)
 
@@ -58,6 +56,25 @@ class LibraryFrame(ttk.Frame):
         self.lib_list.insert(END, gSteamclean.get_dir())
 
 
+class FileDataFrame(ttk.Frame):
+    def __init__(self, parent, col=0, row=0):
+        ttk.Frame.__init__(self, parent)
+
+        self.list_label = ttk.Label(parent, text='Detected files:')
+        self.list_label.grid(column=col, row=row, padx=10, pady=2, sticky=NW)
+
+        self.fdata_tree = ttk.Treeview(parent)
+        self.fdata_tree['columns'] = ('Filesize')
+        self.fdata_tree.column('Filesize', stretch=0, width=128)
+        self.fdata_tree.heading('#0', text='Path', anchor=W)
+        self.fdata_tree.heading('0', text='Filesize', anchor=W)
+        self.fdata_tree.grid(column=col, columnspan=3, row=row+1,
+                             padx=10, pady=2, sticky=NSEW)
+
+        self.remove_button = ttk.Button(parent, text='Remove all')
+        self.remove_button.grid(column=col+2, row=row+2, padx=10,
+                                pady=2, sticky=E)
+
 class gSteamclean(Tk):
     ''' Main application class to hold all internal frames for the UI. '''
 
@@ -68,6 +85,7 @@ class gSteamclean(Tk):
 
         self.sdir_frame = SdirFrame(self, row=0)
         self.lib_frame = LibraryFrame(self, row=1)
+        self.fdata_frame = FileDataFrame(self, row=2)
 
     def get_dir():
         return filedialog.askdirectory(initialdir=syspath[0])
