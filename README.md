@@ -3,8 +3,6 @@ Python 3 script to search for delete leftover files used by Steam game installat
 
 On Windows systems this will remove files such as DirectX, PhysX, XNA, and VisualC++ installers which are not required after the game is launched for the first time. Each game download its own versions of these files for installation and leaves the setup files on disk rather than remove them.
 
-Future support is planned for Linux and Mac operating systems. If you have suggestions for files to be cleaned on these platforms and can aid in testing please let me know.
-
 While I have done my best to ensure this script operates as intended bugs will be present as in any software. In the event you encounter a bug or incorrectly removed file please let me know. Simply create an issue on the scripts GitHub page and I will address it as efficiently as possible.
 
 *Note: If a file is incorrectly removed for a specific game simply verify the game files. While this may interfere with game mods it will reacquire the missing files.*
@@ -14,7 +12,20 @@ Please include the following when creating an issue for it to be addressed as ef
 - Operating system
 - Full path including filename of files removed which led to issues *if applicable
 
-### Usage ###
+There are two versions of this application, gsteamclean and steamclean. The first is the graphical version and the second is CLI. Both perform the same function and utilize the same backend code.
+
+### Usage: gsteamclean ###
+
+![Alt gsteamclean gui](https://github.com/evitalis/steamclean/blob/dev_gui/screenshot.jpg)
+
+Click the ellipses (...) button if your default Steam directory is not found and choose it here.
+If you wish to add additonal libraries click the 'Add dir' button to select additional directory to check.
+Click the 'Scan' button to begin scanning selected directories for cleanable files.
+
+The 'Clean all' button will remove all files displayed in the detected files list.
+*Note: If you wish to exclude files simply create a file named 'excludes.txt in the same directory as this script. Include one line per item. Exclusions are not case sensitive.*
+
+### Usage: steamclean ###
 ```
 usage: steamclean.py [-h] [--dryrun] [--nodir] [-l LIBRARY]
 
