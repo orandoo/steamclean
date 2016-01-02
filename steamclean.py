@@ -1,12 +1,12 @@
 ﻿#!/usr/bin/env python3
 
 # Filename:         steamclean.py
-# Version:          0.4.1
+# Version:          0.5.1
 # Description:      Script to find and remove extraneous files from
 #                   Steam game installation directories.
 
 from codecs import StreamReader
-from datetime import date
+from datetime import datetime
 from linecache import clearcache, getline
 from platform import architecture as pa
 from platform import platform as pp
@@ -24,7 +24,8 @@ logger = logging.getLogger('steamclean')
 logger.setLevel(logging.INFO)
 logformatter = logging.Formatter('%(asctime)s %(levelname)s: %(message)s',
                                  datefmt='%Y-%m-%d %H:%M:%S')
-fh = logging.FileHandler('steamclean_' + str(date.today()) + '.log')
+timenow = datetime.now().strftime('%Y%m%d-%H%M')
+fh = logging.FileHandler('steamclean_' + timenow + '.log')
 fh.setFormatter(logformatter)
 logger.addHandler(fh)
 
@@ -46,7 +47,8 @@ def print_header():
         logger.info('Starting script ' + filename + ' v' + version)
         logger.info('Current operating system: ' + pp() + ' ' + pa()[0])
     except:
-        logger.warning('Unable to read script information from file %s', filename)
+        logger.warning('Unable to read script information from file %s',
+                       filename)
         pass
 
 
@@ -269,13 +271,14 @@ def clean_data(filelist, confirm=''):
 
     # check if confirm is empty to determine if running from gui or cli
     # only prompt if running from cli, cannot respond when running from gui
-    if confirm =='':
+    if confirm == '':
         # Print a warning that files will be permanantly deleted and
         # inform user they can exclude files with the -p option.
         print('\nWARNING: All files will be permanantly deleted!\n'
               'Please see the log file for specific file information.\n')
         while True:
-            confirm = input('Do you wish to remove extra files [y/N]: ').lower()
+            confirm = input('Do you wish to remove extra files [y/N]: ')
+            confirm.lower()
             if confirm == '':
                 break
             elif confirm != 'y' and confirm != 'n':
@@ -313,8 +316,10 @@ def clean_data(filelist, confirm=''):
 
         logger.info('%s file(s) removed successfully', removed)
         logger.info('%s file(s) excluded and not removed', excluded)
+        logger.info('%s MB saved', totalsize)
         print('\n%s file(s) removed successfully' % (removed))
         print('%s file(s) excluded and not removed' % (excluded))
+        print('%s MB saved' % (totalsize))
 
     return filecount, totalsize
 
