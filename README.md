@@ -18,11 +18,9 @@ There are two versions of this application, gsteamclean and steamclean. The firs
 
 ![Alt gsteamclean gui](https://github.com/evitalis/steamclean/blob/dev_gui/screenshot.jpg)
 
-Click the ellipses (...) button if your default Steam directory is not found and choose it here.
-
-If you wish to add additonal libraries click the 'Add dir' button to select additional directory to check.
-
-Click the 'Scan' button to begin scanning selected directories for cleanable files.
+- Click the ellipses (...) button if your default Steam directory is not found and choose it here.
+- If you wish to add additonal libraries click the 'Add dir' button to select additional directory to check.
+- Click the 'Scan' button to begin scanning selected directories for cleanable files.
 
 The 'Clean all' button will remove all files displayed in the detected files list.
 
