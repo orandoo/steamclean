@@ -66,8 +66,8 @@ class LibraryFrame(ttk.Frame):
                                 selectmode=SINGLE)
         self.lib_list.grid(column=col+1, row=row, padx=10, pady=2, sticky=W)
 
-        self.lib_button = ttk.Button(parent, text='Add dir...',
-                                     width=8, command=self.add_library)
+        self.lib_button = ttk.Button(parent, text='Add dir',
+                                     command=self.add_library)
         self.lib_button.grid(column=col+2, row=row, padx=10, pady=2, sticky=NW)
 
     def add_library(self):
