@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
 
+# Filename:         gsteamclean.pyw
+# Version:          0.5.1
+# Description:      tkinter frontend for steamclean.py
+
 from os import path as ospath
 from sys import path as syspath
 
@@ -109,6 +113,7 @@ class gSteamclean(Tk):
 
     def __init__(self):
         Tk.__init__(self)
+
         self.title('steamclean')
         self.resizable(height=FALSE, width=FALSE)
 
@@ -128,13 +133,17 @@ class gSteamclean(Tk):
         files = sc.find_redist(steamdir=self.sdir_frame.sdir_entry.get(),
                                library=self.lib_frame.lib_list.get(0, END))
 
-        # add into gui all file paths and sizes formatted to MB
-        for k, v in files.items():
-            fsize = format(v, '.2f')
-            # insert data into root element at the end of the list
-            # text is the file path, value is filesize
-            self.fdata_frame.fdata_tree.insert('', 'end', text=k,
-                                               value=fsize)
+        if len(files) > 0:
+            # add into gui all file paths and sizes formatted to MB
+            for k, v in files.items():
+                fsize = format(v, '.2f')
+                # insert data into root element at the end of the list
+                # text is the file path, value is filesize
+                self.fdata_frame.fdata_tree.insert('', 'end', text=k,
+                                                   value=fsize)
+        else:
+            messagebox.showinfo(title='Congratulations',
+                                message='No files found for removal.')
 
     def clean_all(self):
         flist = {}  # dictionary of all file data read from gui
@@ -151,6 +160,7 @@ class gSteamclean(Tk):
 
         # convert response into expected values for clean_data function
         if confirm is True:
+            fcount, tsize = sc.clean_data(flist, confirm='y')
             filemsg = str(fcount) + ' files removed successfully.\n'
             sizemsg = str(tsize) + ' MB saved.'
             messagebox.showinfo('Success!', filemsg + sizemsg)
@@ -158,4 +168,5 @@ class gSteamclean(Tk):
             sc.clean_data(flist, confirm='n')
 
 if __name__ == '__main__':
+    sc.print_header()
     gSteamclean().mainloop()
