@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env python3
+#!/usr/bin/env python3
 
 # Filename:         steamclean.py
 # Version:          0.5.1
@@ -371,8 +371,7 @@ if __name__ == "__main__":
         else:
             print('\nCongratulations! No files were found for removal. ')
     elif os.name == 'posix':
-        print('No Linux support at this time. \
-        Please report files that can be cleaned.')
+        print('No Linux support at this time.')
     else:
         print('Invalid operating system detected.')
 
