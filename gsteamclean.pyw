@@ -16,7 +16,7 @@ import steamclean as sc
 
 
 class SdirFrame(ttk.Frame):
-    ''' Top UI frame to hold data for the default Steam directory. '''
+    """ Top UI frame to hold data for the default Steam directory. """
 
     def __init__(self, parent, col=0, row=0):
         ttk.Frame.__init__(self, parent)
@@ -47,13 +47,13 @@ class SdirFrame(ttk.Frame):
         self.sdir_button.grid(column=col+2, row=row, padx=10, pady=2, sticky=W)
 
     def set_sdir(self):
-        ''' Simply set the Steam directory from the dialog.'''
+        """ Simply set the Steam directory from the dialog."""
 
         self.sdir.set(gSteamclean.get_dir())
 
 
 class LibraryFrame(ttk.Frame):
-    ''' UI frame to hold information regarding selected libraries to scan. '''
+    """ UI frame to hold information regarding selected libraries to scan. """
 
     def __init__(self, parent, col=0, row=0):
         ttk.Frame.__init__(self, parent)
@@ -71,7 +71,7 @@ class LibraryFrame(ttk.Frame):
         self.lib_button.grid(column=col+2, row=row, padx=10, pady=2, sticky=NW)
 
     def add_library(self):
-        ''' Insert every selected directory chosen from the dialog.'''
+        """ Insert every selected directory chosen from the dialog."""
 
         self.lib_list.insert(END, gSteamclean.get_dir())
 
@@ -109,7 +109,7 @@ class FileDataFrame(ttk.Frame):
 
 
 class gSteamclean(Tk):
-    ''' Main application class to hold all internal frames for the UI. '''
+    """ Main application class to hold all internal frames for the UI. """
 
     def __init__(self):
         Tk.__init__(self)
@@ -122,8 +122,8 @@ class gSteamclean(Tk):
         self.fdata_frame = FileDataFrame(self, row=2)
 
     def get_dir():
-        ''' Method to return the directory selected by the user which should
-            be scanned by the application. '''
+        """ Method to return the directory selected by the user which should
+            be scanned by the application. """
 
         # normalize path for consistant display
         return ospath.abspath(filedialog.askdirectory(initialdir=syspath[0]))
