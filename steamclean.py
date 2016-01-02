@@ -33,10 +33,11 @@ logger.addHandler(fh)
 def print_header():
     """ Clear terminal window and print script name and release date. """
 
-    if os.name == 'nt':
-        os.system('cls')
-    elif os.name == 'posix':
-        os.system('clear')
+    if __name__ == '__main__':
+        if os.name == 'nt':
+            os.system('cls')
+        elif os.name == 'posix':
+            os.system('clear')
 
     # Attempt to print script name and modified date as header if able
     try:
