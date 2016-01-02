@@ -24,6 +24,7 @@ logger = logging.getLogger('steamclean')
 logger.setLevel(logging.INFO)
 logformatter = logging.Formatter('%(asctime)s %(levelname)s: %(message)s',
                                  datefmt='%Y-%m-%d %H:%M:%S')
+# use current date and time for log file name for clarity
 timenow = datetime.now().strftime('%Y%m%d-%H%M')
 fh = logging.FileHandler('steamclean_' + timenow + '.log')
 fh.setFormatter(logformatter)
@@ -31,7 +32,9 @@ logger.addHandler(fh)
 
 
 def print_header():
-    """ Clear terminal window and print script name and release date. """
+    """ Clear terminal window and print script name and release date. 
+        This is only run if running the script file directly, built 
+        binaries will fail this step. """
 
     if __name__ == '__main__':
         if os.name == 'nt':
