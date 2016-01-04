@@ -125,8 +125,11 @@ class gSteamclean(Tk):
         """ Method to return the directory selected by the user which should
             be scanned by the application. """
 
-        # normalize path for consistant display
-        return ospath.abspath(filedialog.askdirectory(initialdir=syspath[0]))
+        # get user specified directory and normalize path
+        seldir = filedialog.askdirectory(initialdir=syspath[0])
+        if seldir:
+            seldir = ospath.abspath(seldir)
+            return seldir
 
     def scan_dirs(self):
         # build list of detected files from selected paths
