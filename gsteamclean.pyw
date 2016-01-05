@@ -132,6 +132,12 @@ class gSteamclean(Tk):
             return seldir
 
     def scan_dirs(self):
+
+        # entry all previous results from gui
+        treeview = self.fdata_frame.fdata_tree
+        for item in treeview.get_children():
+            treeview.delete(item)
+
         # build list of detected files from selected paths
         files = sc.find_redist(steamdir=self.sdir_frame.sdir_entry.get(),
                                library=self.lib_frame.lib_list.get(0, END))
