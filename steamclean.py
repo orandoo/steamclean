@@ -165,7 +165,7 @@ def find_redist(steamdir, nodir=False, library=None):
             if os.path.exists(lib) and os.path.isdir(lib):
                 for dir in os.listdir(lib):
                     libsubdir = os.path.join(lib, dir)
-                    if os.path.exists(libsubdir):
+                    if os.path.exists(libsubdir) and os.path.isdir(libsubdir):
                         if libsubdir not in gamedirs:
                             gamedirs[libsubdir] = ''
     else:
