@@ -188,7 +188,7 @@ class gSteamclean(Tk):
         if confirm is True:
             fcount, tsize = sc.clean_data(flist, confirm='y')
             filemsg = str(fcount) + ' files removed successfully.\n'
-            sizemsg = str(tsize) + ' MB saved.'
+            sizemsg = str(format(tsize, '.2f')) + ' MB saved.'
             messagebox.showinfo('Success!', filemsg + sizemsg)
         else:
             sc.clean_data(flist, confirm='n')

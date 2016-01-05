@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 # Filename:         steamclean.py
-# Version:          0.5.1
+# Version:          0.5.2
 # Description:      Script to find and remove extraneous files from
 #                   Steam game installation directories.
 
@@ -320,10 +320,10 @@ def clean_data(filelist, confirm=''):
 
         logger.info('%s file(s) removed successfully', removed)
         logger.info('%s file(s) excluded and not removed', excluded)
-        logger.info('%s MB saved', totalsize)
+        logger.info('%s MB saved', format(totalsize, '.2f')
         print('\n%s file(s) removed successfully' % (removed))
         print('%s file(s) excluded and not removed' % (excluded))
-        print('%s MB saved' % (totalsize))
+        print('%s MB saved' % (format(totalsize, '.2f'))
 
     return filecount, totalsize
 
