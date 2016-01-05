@@ -101,6 +101,12 @@ class FileDataFrame(ttk.Frame):
         self.fdata_tree.grid(column=col, columnspan=3, row=row+1,
                              padx=10, pady=2, sticky=NSEW)
 
+        # label to show total files found and their size
+        # this label is blank to hide it until required to be shown
+        self.total_label = ttk.Label(parent)
+        self.total_label.grid(column=col+1, row=row+2, padx=10, pady=2,
+                              sticky=E)
+
         # button used to remove the detected data
         self.remove_button = ttk.Button(parent, text='Clean')
         self.remove_button['command'] = lambda: gSteamclean.clean_all(parent)
@@ -133,6 +139,8 @@ class gSteamclean(Tk):
 
     def scan_dirs(self):
 
+        totals = {'count': 0, 'size': 0}
+
         # entry all previous results from gui
         treeview = self.fdata_frame.fdata_tree
         for item in treeview.get_children():
@@ -142,14 +150,23 @@ class gSteamclean(Tk):
         files = sc.find_redist(steamdir=self.sdir_frame.sdir_entry.get(),
                                library=self.lib_frame.lib_list.get(0, END))
 
+        totals['count'] = str(len(files))
+
         if len(files) > 0:
             # add into gui all file paths and sizes formatted to MB
             for k, v in files.items():
                 fsize = format(v, '.2f')
+                totals['size'] = totals['size'] + v
                 # insert data into root element at the end of the list
                 # text is the file path, value is filesize
                 self.fdata_frame.fdata_tree.insert('', 'end', text=k,
                                                    value=fsize)
+
+            # total files found and modify hidden label with this data
+            totals['size'] = str(format(totals['size'], '.2f'))
+            totaltext = 'Total: %s files (%s MB)' % (totals['count'],
+                                                     totals['size'])
+            self.fdata_frame.total_label['text'] = totaltext
         else:
             messagebox.showinfo(title='Congratulations',
                                 message='No files found for removal.')
