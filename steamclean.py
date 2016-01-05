@@ -32,8 +32,8 @@ logger.addHandler(fh)
 
 
 def print_header():
-    """ Clear terminal window and print script name and release date. 
-        This is only run if running the script file directly, built 
+    """ Clear terminal window and print script name and release date.
+        This is only run if running the script file directly, built
         binaries will fail this step. """
 
     if __name__ == '__main__':
@@ -320,10 +320,10 @@ def clean_data(filelist, confirm=''):
 
         logger.info('%s file(s) removed successfully', removed)
         logger.info('%s file(s) excluded and not removed', excluded)
-        logger.info('%s MB saved', format(totalsize, '.2f')
+        logger.info('%s MB saved', format(totalsize, '.2f'))
         print('\n%s file(s) removed successfully' % (removed))
         print('%s file(s) excluded and not removed' % (excluded))
-        print('%s MB saved' % (format(totalsize, '.2f'))
+        print('%s MB saved' % (format(totalsize, '.2f')))
 
     return filecount, totalsize
 
