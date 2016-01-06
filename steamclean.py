@@ -36,6 +36,8 @@ def print_header():
         This is only run if running the script file directly, built
         binaries will fail this step. """
 
+    filename = os.path.basename(__file__)
+
     if __name__ == '__main__':
         if os.name == 'nt':
             os.system('cls')
@@ -43,17 +45,19 @@ def print_header():
             os.system('clear')
 
     # Attempt to print script name and modified date as header if able
+    # by reading the local script data
     try:
-        filename = os.path.basename(__file__)
         version = getline(__file__, 4).split(':')[1].strip()
 
         print('%s v%s \n' % (filename, version))
         logger.info('Starting script ' + filename + ' v' + version)
-        logger.info('Current operating system: ' + pp() + ' ' + pa()[0])
     except:
         logger.warning('Unable to read script information from file %s',
                        filename)
-        pass
+    finally:
+        logger.info('Starting %s', filename)
+        logger.info('Current operating system: ' + pp() + ' ' + pa()[0])
+        print('Starting %s' % (filename))
 
 
 def win_reg_check():
@@ -66,8 +70,6 @@ def win_reg_check():
 
     # use architecture returned to evaluate appropriate registry key
     if arch == '64bit':
-        logger.info('64bit operating system detected')
-
         regpath = r'SOFTWARE\Wow6432Node\Valve\Steam'
         regopts = (winreg.KEY_WOW64_64KEY + winreg.KEY_READ)
     elif arch == '32bit':
@@ -107,6 +109,7 @@ def win_reg_check():
 
 def fix_game_path(dir):
     """ Fix path to include proper directory structure if needed. """
+
     if 'SteamApps' not in dir:
         dir = os.path.join(dir, 'SteamApps', 'common')
     # normalize path before returning
