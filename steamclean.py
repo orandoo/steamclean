@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 # Filename:         steamclean.py
-# Version:          0.5.2
+# Version:          0.5.3
 # Description:      Script to find and remove extraneous files from
 #                   Steam game installation directories.
 
@@ -136,11 +136,20 @@ def find_redist(steamdir, nodir=False, library=None):
     # Gather game directories from default path.
     logger.info('Checking %s', steamdir)
     print('Checking %s' % (steamdir))
-    for dir in os.listdir(steamdir):
-        # if path is a directory and not already in list add it
-        if os.path.isdir(os.path.join(steamdir, dir)):
-            if dir not in gamedirs:
-                gamedirs[os.path.join(steamdir, dir)] = ''
+
+    # ensure the path provided exists and is a valid directory
+    try:
+        if os.path.exists(steamdir) and os.path.isdir(steamdir):
+            for dir in os.listdir(steamdir):
+                # if path is a directory and not already in list add it
+                if os.path.isdir(os.path.join(steamdir, dir)):
+                    if dir not in gamedirs:
+                        gamedirs[os.path.join(steamdir, dir)] = ''
+    # print directory to log if it is not found or invalid
+    except FileNotFoundError:
+        logger.error('Directory %s is missing or invalid, skipping',
+                     steamdir)
+        print('Directory %s is missing or invalid, skipping' % (steamdir))
 
     if library is not None:
         # split list is provided via cli application as a string
