@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 # Filename:         gsteamclean.pyw
-# Version:          0.5.3
 # Description:      tkinter frontend for steamclean.py
 
 from os import path as ospath
