@@ -62,17 +62,37 @@ class LibraryFrame(ttk.Frame):
 
         # listbox containing all selected additional directories to scan
         self.lib_list = Listbox(parent, width=64, height=4,
-                                selectmode=SINGLE)
+                                selectmode=MULTIPLE)
+        self.lib_list.bind('<<ListboxSelect>>', self.on_select)
         self.lib_list.grid(column=col+1, row=row, padx=10, pady=2, sticky=W)
 
         self.lib_button = ttk.Button(parent, text='Add dir',
                                      command=self.add_library)
         self.lib_button.grid(column=col+2, row=row, padx=10, pady=2, sticky=NW)
 
-    def add_library(self):
-        """ Insert every selected directory chosen from the dialog."""
+    def on_select(self, evt):
+        self.lib_button['text'] = 'Del dir'
+        self.lib_button['command'] = self.rm_library
+        print(self.lib_list.curselection())
 
-        self.lib_list.insert(END, gSteamclean.get_dir())
+    def add_library(self):
+        """ Insert every selected directory chosen from the dialog. 
+            Prevent duplicate directories by checking existing items. """
+
+        dirlist = self.lib_list.get(0, END)
+        newdir = gSteamclean.get_dir()
+        if newdir not in dirlist:
+            self.lib_list.insert(END, newdir)
+
+    def rm_library(self):
+        """ Remove selected items from listbox when button in remove mode. """
+
+        # Reverse sort the selected indexes to ensure all items are removed
+        selected = sorted(self.lib_list.curselection(), reverse=True)
+        for item in selected:
+            self.lib_list.delete(item)
+        self.lib_button['text'] = 'Add dir'
+        self.lib_button['command'] = self.add_library
 
 
 class FileDataFrame(ttk.Frame):
@@ -193,5 +213,5 @@ class gSteamclean(Tk):
             sc.clean_data(flist, confirm='n')
 
 if __name__ == '__main__':
-    sc.print_header()
+    sc.print_header(filename=ospath.basename(__file__))
     gSteamclean().mainloop()
