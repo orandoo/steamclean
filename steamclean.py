@@ -31,12 +31,13 @@ fh.setFormatter(logformatter)
 logger.addHandler(fh)
 
 
-def print_header():
+def print_header(filename=None):
     """ Clear terminal window and print script name and release date.
         This is only run if running the script file directly, built
         binaries will fail this step. """
 
-    filename = os.path.basename(__file__)
+    if not filename:
+        filename = os.path.basename(__file__)
 
     if __name__ == '__main__':
         if os.name == 'nt':
