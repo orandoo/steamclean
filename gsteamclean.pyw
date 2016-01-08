@@ -128,6 +128,7 @@ class FileDataFrame(ttk.Frame):
 
         # button used to remove the detected data
         self.remove_button = ttk.Button(parent, text='Clean')
+        self.remove_button['state'] = 'disabled'
         self.remove_button['command'] = lambda: gSteamclean.clean_all(parent)
         self.remove_button.grid(column=col+2, row=row+2, padx=10,
                                 pady=2, sticky=E)
@@ -157,6 +158,7 @@ class gSteamclean(Tk):
             return seldir
 
     def scan_dirs(self):
+        self.fdata_frame.total_label['text'] = ''
 
         totals = {'count': 0, 'size': 0}
 
@@ -186,6 +188,9 @@ class gSteamclean(Tk):
             totaltext = 'Total: %s files (%s MB)' % (totals['count'],
                                                      totals['size'])
             self.fdata_frame.total_label['text'] = totaltext
+
+            # enable clean button only if items are found for removal
+            self.fdata_frame.remove_button['state'] = 'enabled'
         else:
             messagebox.showinfo(title='Congratulations',
                                 message='No files found for removal.')
