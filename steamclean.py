@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 # Filename:         steamclean.py
-# Version:          0.5.3
+# Version:          0.5.4
 # Description:      Script to find and remove extraneous files from
 #                   Steam game installation directories.
 
@@ -147,6 +147,7 @@ def find_redist(steamdir, nodir=False, library=None):
                 # if path is a directory and not already in list add it
                 if os.path.isdir(os.path.join(steamdir, dir)):
                     if dir not in gamedirs:
+                        # add new key matching game directories found
                         gamedirs[os.path.join(steamdir, dir)] = ''
     # print directory to log if it is not found or invalid
     except FileNotFoundError:
@@ -179,6 +180,7 @@ def find_redist(steamdir, nodir=False, library=None):
                     libsubdir = os.path.join(lib, dir)
                     if os.path.exists(libsubdir) and os.path.isdir(libsubdir):
                         if libsubdir not in gamedirs:
+                            # add key for each located directory
                             gamedirs[libsubdir] = ''
     else:
         logging.info('No additional libraries provided.')
@@ -191,6 +193,7 @@ def find_redist(steamdir, nodir=False, library=None):
         for gamedir in gamedirs:
             for subdir in os.listdir(gamedir):
                 sdpath = os.path.abspath(os.path.join(gamedir, subdir))
+                # regex for common redist subdirectory names
                 dirregex = re.compile(r'(.*)(directx|redist|miles)(.*)',
                                       re.IGNORECASE)
                 if dirregex.match(sdpath):
@@ -228,25 +231,30 @@ def find_redist(steamdir, nodir=False, library=None):
     # Substitute game path for %INSTALLDIR% within .vdf file.
     for game in cleangamedirs:
         with open(cleangamedirs[game]) as vdffile:
-            for line in vdffile:
-                # Only read lines with an installation specified.
-                if 'INSTALLDIR' in line:
-                    # Replace %INSTALLDIR% with path and make it valid.
-                    splitline = line.split('%')
-                    newline = splitline[1].replace('INSTALLDIR', game) + \
-                        splitline[2][0: splitline[2].find('.') + 4]
+            try:
+                for line in vdffile:
+                    # Only read lines with an installation specified.
+                    if 'INSTALLDIR' in line:
+                        # Replace %INSTALLDIR% with path and make it valid.
+                        splitline = line.split('%')
+                        newline = splitline[1].replace('INSTALLDIR', game) + \
+                            splitline[2][0: splitline[2].find('.') + 4]
 
-                    # Clean path, appending only existing files to clean list.
-                    filepath = os.path.abspath(newline)
-                    if os.path.isfile(filepath) and os.path.exists(filepath):
-                        filepath = filepath.lower()
-                        # Check filename to determine if it is a
-                        # redistributable before adding to cleanable to
-                        # ensure a required file is not removed.
-                        for rc in ['setup', 'redist']:
-                            if rc in filepath:
-                                cleanable[filepath] = (
-                                    (os.path.getsize(filepath) / 1024) / 1024)
+                        # Build list of existing and valid files
+                        fpath = os.path.abspath(newline).lower()
+                        if os.path.isfile(fpath) and os.path.exists(fpath):
+                            # Check filename to determine if it is a
+                            # redistributable before adding to cleanable to
+                            # ensure a required file is not removed.
+                            for rc in ['setup', 'redist']:
+                                if rc in fpath:
+                                    cleanable[fpath] = (
+                                        (os.path.getsize(fpath) / 1024) / 1024)
+            except UnicodeDecodeError:
+                logging.error('Invalid characters found in file %s',
+                              vdffile)
+            except IndexError:
+                logging.error('Invalid data in file %s', vdffile)
 
     # log all detected files and their size
     for file in cleanable:
