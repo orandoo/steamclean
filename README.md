@@ -28,7 +28,7 @@ The 'Clean all' button will remove all files displayed in the detected files lis
 
 ### Usage: steamclean ###
 ```
-usage: steamclean.py [-h] [--dryrun] [--nodir] [-l LIBRARY]
+usage: steamclean.py [-h] [--dryrun] [--nodir] [--autolib] [-l LIBRARY]
 
 Find and clean extraneous files from game directories including various
 Windows redistributables.
@@ -37,6 +37,7 @@ optional arguments:
   -h, --help            show this help message and exit
   --dryrun              Run script without allowing any file removal.
   --nodir               Do not clean redistributable directories.
+  --autolib             Attempt to auto detect Steam libraries in use.
   -l LIBRARY, --library LIBRARY
                         Additional Steam libraries to examine (comma
                         separated).
