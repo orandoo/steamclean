@@ -137,7 +137,7 @@ class gSteamclean(Tk):
 
         steamdir = sc.win_reg_check()
 
-        self.title('steamclean')
+        self.title('steamclean v' + sc.VERSION)
         self.resizable(height=FALSE, width=FALSE)
 
         if steamdir:
