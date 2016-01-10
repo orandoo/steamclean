@@ -17,7 +17,7 @@ import steamclean as sc
 class SdirFrame(ttk.Frame):
     """ Top UI frame to hold data for the default Steam directory. """
 
-    def __init__(self, parent, col=0, row=0):
+    def __init__(self, parent, col=0, row=0, steamdir=None):
         ttk.Frame.__init__(self, parent)
 
         self.sdir_label = ttk.Label(parent, text='Steam directory:')
@@ -27,18 +27,14 @@ class SdirFrame(ttk.Frame):
         # this is to be selected via a dialog to ensure it is valid
         # utilize a StringVar in order to set the text is the 'disabled' widget
         self.sdir = StringVar()
+        if steamdir:
+            self.sdir.set(steamdir)
 
         # set button to disabled as this path should be automatically detected
         # and should not need modified
         self.sdir_entry = ttk.Entry(parent, width=64, state='readonly',
                                     textvariable=self.sdir)
         self.sdir_entry.grid(column=col+1, row=row, padx=10, pady=2, sticky=W)
-
-        # use steamclean module to check registry for path and set if returned
-        try:
-            self.sdir.set(sc.win_reg_check())
-        except:
-            pass
 
         # create a select button which will open a select directory dialog
         self.sdir_button = ttk.Button(parent, text='...', width=4,
@@ -73,10 +69,9 @@ class LibraryFrame(ttk.Frame):
     def on_select(self, evt):
         self.lib_button['text'] = 'Del dir'
         self.lib_button['command'] = self.rm_library
-        print(self.lib_list.curselection())
 
     def add_library(self):
-        """ Insert every selected directory chosen from the dialog. 
+        """ Insert every selected directory chosen from the dialog.
             Prevent duplicate directories by checking existing items. """
 
         dirlist = self.lib_list.get(0, END)
@@ -140,12 +135,22 @@ class gSteamclean(Tk):
     def __init__(self):
         Tk.__init__(self)
 
+        steamdir = sc.win_reg_check()
+
         self.title('steamclean')
         self.resizable(height=FALSE, width=FALSE)
 
-        self.sdir_frame = SdirFrame(self, row=0)
+        if steamdir:
+            self.sdir_frame = SdirFrame(self, steamdir=steamdir, row=0)
+        else:
+            self.sdir_frame = SdirFrame(self, row=0)
         self.lib_frame = LibraryFrame(self, row=1)
         self.fdata_frame = FileDataFrame(self, row=2)
+
+        if steamdir:
+            libs = sc.get_libraries(steamdir=steamdir)
+            for lib in libs:
+                self.lib_frame.lib_list.insert(END, lib)
 
     def get_dir():
         """ Method to return the directory selected by the user which should
