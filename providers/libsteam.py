@@ -8,6 +8,7 @@ import logging
 import os
 import winreg
 
+# module specific sublogger to avoid duplicate log entries
 liblog = logging.getLogger('steamclean.libsteam')
 
 
