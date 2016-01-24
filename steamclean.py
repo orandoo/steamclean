@@ -363,8 +363,6 @@ def print_stats(cleanable):
 
 
 if __name__ == "__main__":
-    prsteam = libsteam.ProviderSteam()
-
     parser = argparse.ArgumentParser(
         description='Find and clean extraneous files from game directories '
                     'including various Windows redistributables.')
@@ -385,7 +383,7 @@ if __name__ == "__main__":
     print_header()
 
     if os.name == 'nt':
-        cleanable = find_redist(prsteam.winreg_read(), args.autolib,
+        cleanable = find_redist(libsteam.winreg_read(), args.autolib,
                                 args.nodir, args.library)
 
         if len(cleanable) > 0:
