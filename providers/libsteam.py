@@ -9,7 +9,7 @@ import os
 import winreg
 
 # module specific sublogger to avoid duplicate log entries
-liblog = logging.getLogger('steamclean.libsteam')
+liblogger = logging.getLogger('steamclean.libsteam')
 
 
 def winreg_read():
@@ -25,12 +25,12 @@ def winreg_read():
         regpath = r'SOFTWARE\Wow6432Node\Valve\Steam'
         regopts = (winreg.KEY_WOW64_64KEY + winreg.KEY_READ)
     elif arch == '32bit':
-        liblog.info('32 bit operating system detected')
+        liblogger.info('32 bit operating system detected')
 
         regpath = r'SOFTWARE\Valve\Steam'
         regopts = winreg.KEY_READ
     else:
-        liblog.error('Unable to determine system architecture.')
+        liblogger.error('Unable to determine system architecture.')
         raise ValueError('ERROR: Unable to determine system architecture.')
 
     try:
@@ -40,9 +40,9 @@ def winreg_read():
         ipath = winreg.QueryValueEx(regkey, 'InstallPath')[0]
 
     except PermissionError:
-        liblog.error('Permission denied to read registry key',
+        liblogger.error('Permission denied to read registry key',
                      regbase + regpath)
-        liblog.error('Run this script as administrator to resolve.')
+        liblogger.error('Run this script as administrator to resolve.')
         print('Permission denied to read registry data at %s.', regpath)
 
         ipath = input('Please enter the Steam installation directory: ')
@@ -50,9 +50,9 @@ def winreg_read():
     finally:
         # Ensure registry key is closed after reading as applicable.
         if regkey is not None:
-            liblog.info('Registry data at %s used to determine ' +
+            liblogger.info('Registry data at %s used to determine ' +
                         'installation path', regbase + regpath)
-            liblog.info('Steam installation path found at %s', ipath)
+            liblogger.info('Steam installation path found at %s', ipath)
 
             winreg.CloseKey(regkey)
 
