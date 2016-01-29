@@ -69,41 +69,6 @@ def fix_game_path(dir):
     return os.path.abspath(dir)
 
 
-def get_libraries(steamdir):
-    """ Attempt to automatically read extra Steam library directories by
-        checking the libraryfolders.vdf file. """
-
-    libfiledir = os.path.join(steamdir, 'steamapps')
-    # Build the path to libraryfolders.vdf which stores configured libraries.
-    libfile = os.path.abspath(os.path.join(libfiledir, 'libraryfolders.vdf'))
-    # This regex checks for lines starting with the number and grabs the
-    # path specified in that line by matching anything within quotes.
-    libregex = re.compile('(^\t"[1-8]").*(".*")')
-
-    try:
-        libdirs = []
-
-        sclogger.info('Attempting to read libraries from %s', libfile)
-        with open(libfile) as file:
-            for line in file:
-                dir = libregex.search(line)
-                if dir:
-                    # Normalize directory path which is the second match group
-                    ndir = os.path.normpath(dir.group(2))
-                    sclogger.info('Library found at %s', ndir)
-                    libdirs.append(ndir.strip('"'))
-
-        # Return list of any directories found, directories are checked
-        # outside of this function for validity and are ignored if invalid.
-        return libdirs
-    except FileNotFoundError:
-        sclogger.error('Unable to find file %s', libfile, steamdir)
-        print('Unable to find file %s' % (libfile, steamdir))
-    except PermissionError:
-        sclogger.error('Permission denied to %s', libfile)
-        print('Permission denied to %s' % (libfile))
-
-
 def find_redist(steamdir, autolib=False, nodir=False, library=None):
     """ Find all redistributable files and read .vdf files to determine
         all files which can be safely removed. Always check .vdf file
@@ -123,7 +88,7 @@ def find_redist(steamdir, autolib=False, nodir=False, library=None):
     # Validate Steam installation path.
     if os.path.isdir(steamdir):
         if autolib:
-            for lib in get_libraries(steamdir):
+            for lib in libsteam.get_libraries(steamdir):
                 liblist.append(lib)
         steamdir = fix_game_path(steamdir)
         sclogger.info('Game installations located at %s', steamdir)
