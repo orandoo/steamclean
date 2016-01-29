@@ -41,7 +41,7 @@ def winreg_read():
 
     except PermissionError:
         liblogger.error('Permission denied to read registry key',
-                     regbase + regpath)
+                        regbase + regpath)
         liblogger.error('Run this script as administrator to resolve.')
         print('Permission denied to read registry data at %s.', regpath)
 
@@ -51,7 +51,7 @@ def winreg_read():
         # Ensure registry key is closed after reading as applicable.
         if regkey is not None:
             liblogger.info('Registry data at %s used to determine ' +
-                        'installation path', regbase + regpath)
+                           'installation path', regbase + regpath)
             liblogger.info('Steam installation path found at %s', ipath)
 
             winreg.CloseKey(regkey)
@@ -93,3 +93,12 @@ def get_libraries(steamdir):
     except PermissionError:
         liblogger.error('Permission denied to %s', libfile)
         print('Permission denied to %s' % (libfile))
+
+
+def fix_game_path(dir):
+    """ Fix path to include proper directory structure if needed. """
+
+    if 'SteamApps' not in dir:
+        dir = os.path.join(dir, 'SteamApps', 'common')
+    # normalize path before returning
+    return os.path.abspath(dir)

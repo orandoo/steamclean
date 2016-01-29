@@ -60,15 +60,6 @@ def print_header(filename=None):
     print('Current operating system: %s %s\n' % (pp(), pa()[0]))
 
 
-def fix_game_path(dir):
-    """ Fix path to include proper directory structure if needed. """
-
-    if 'SteamApps' not in dir:
-        dir = os.path.join(dir, 'SteamApps', 'common')
-    # normalize path before returning
-    return os.path.abspath(dir)
-
-
 def find_redist(steamdir, autolib=False, nodir=False, library=None):
     """ Find all redistributable files and read .vdf files to determine
         all files which can be safely removed. Always check .vdf file
@@ -90,7 +81,7 @@ def find_redist(steamdir, autolib=False, nodir=False, library=None):
         if autolib:
             for lib in libsteam.get_libraries(steamdir):
                 liblist.append(lib)
-        steamdir = fix_game_path(steamdir)
+        steamdir = libsteam.fix_game_path(steamdir)
         sclogger.info('Game installations located at %s', steamdir)
 
     # Gather game directories from default path.
@@ -127,7 +118,7 @@ def find_redist(steamdir, autolib=False, nodir=False, library=None):
         # Check all provided libraries.
         for lib in liblist:
             # correct path issues and validate path
-            lib = fix_game_path(lib)
+            lib = libsteam.fix_game_path(lib)
             # Verify library path exists and is a directory
             if not os.path.exists(lib) or not os.path.isdir(lib):
                 sclogger.warning('Ignoring invalid directory at %s', lib)
@@ -348,7 +339,8 @@ if __name__ == "__main__":
     print_header()
 
     if os.name == 'nt':
-        cleanable = find_redist(libsteam.winreg_read(), args.autolib,
+        ipath_steam = libsteam.winreg_read()    # Steam installation path
+        cleanable = find_redist(ipath_steam, args.autolib,
                                 args.nodir, args.library)
 
         if len(cleanable) > 0:
