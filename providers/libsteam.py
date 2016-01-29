@@ -1,11 +1,11 @@
-# filename:     prsteam.py
+# filename:     libsteam.py
 # description:  Collection of functions directly related to the Steam client
 #               handling within steamclean.py
 
 from platform import architecture as pa
-from platform import platform as pp
 import logging
 import os
+import re
 import winreg
 
 # module specific sublogger to avoid duplicate log entries
@@ -56,4 +56,40 @@ def winreg_read():
 
             winreg.CloseKey(regkey)
 
-        return ipath.strip()
+        installpath = os.path.abspath(ipath.strip())
+        return installpath
+
+
+def get_libraries(steamdir):
+    """ Attempt to automatically read extra Steam library directories by
+        checking the libraryfolders.vdf file. """
+
+    libfiledir = os.path.join(steamdir, 'steamapps')
+    # Build the path to libraryfolders.vdf which stores configured libraries.
+    libfile = os.path.abspath(os.path.join(libfiledir, 'libraryfolders.vdf'))
+    # This regex checks for lines starting with the number and grabs the
+    # path specified in that line by matching anything within quotes.
+    libregex = re.compile('(^\t"[1-8]").*(".*")')
+
+    try:
+        libdirs = []
+
+        liblogger.info('Attempting to read libraries from %s', libfile)
+        with open(libfile) as file:
+            for line in file:
+                dir = libregex.search(line)
+                if dir:
+                    # Normalize directory path which is the second match group
+                    ndir = os.path.normpath(dir.group(2))
+                    liblogger.info('Library found at %s', ndir)
+                    libdirs.append(ndir.strip('"'))
+
+        # Return list of any directories found, directories are checked
+        # outside of this function for validity and are ignored if invalid.
+        return libdirs
+    except FileNotFoundError:
+        liblogger.error('Unable to find file %s', libfile, steamdir)
+        print('Unable to find file %s' % (libfile, steamdir))
+    except PermissionError:
+        liblogger.error('Permission denied to %s', libfile)
+        print('Permission denied to %s' % (libfile))
