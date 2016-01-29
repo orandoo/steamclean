@@ -166,7 +166,8 @@ def find_redist(steamdir, autolib=False, nodir=False, library=None):
         for rfile in redistfiles:
             cleanable[rfile] = ((os.path.getsize(rfile) / 1024) / 1024)
 
-    # get all vdf files from game directories for review
+    # Check all game directories for valid .vdf files and check for additional
+    # files for removal.
     cleanable.update(libsteam.check_vdf(gamedirs))
 
     # log all detected files and their size
