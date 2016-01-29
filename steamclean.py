@@ -60,7 +60,7 @@ def print_header(filename=None):
     print('Current operating system: %s %s\n' % (pp(), pa()[0]))
 
 
-def find_redist(steamdir, autolib=False, nodir=False, library=None):
+def find_redist(steamdir, autolib=False, library=None):
     """ Find all redistributable files and read .vdf files to determine
         all files which can be safely removed. Always check .vdf file
         for removable data but include standard redistributable paths. """
@@ -136,35 +136,33 @@ def find_redist(steamdir, autolib=False, nodir=False, library=None):
                             # add key for each located directory
                             gamedirs[libsubdir] = ''
 
-    # nodir option to skip cleaning redistributable subdirectories
-    if not nodir:
-        # build list of redist files from subdirectories when applicable
-        redistfiles = []
-        # check each subdirectory for matching values to determine valid files
-        for gamedir in gamedirs:
-            for subdir in os.listdir(gamedir):
-                sdpath = os.path.abspath(os.path.join(gamedir, subdir))
-                # regex for common redist subdirectory names
-                dirregex = re.compile(r'(.*)(directx|redist|miles)(.*)',
-                                      re.IGNORECASE)
-                if dirregex.match(sdpath):
-                    # build list of all subdirectories and files from
-                    # root (game subdirectory) that are valid for removal
-                    for (root, dirs, files) in os.walk(sdpath):
-                        for file in files:
-                            # build path to each found file and verify
-                            # extension is a valid installation file
-                            filepath = os.path.join(root, file)
-                            extregex = re.compile(r'(cab|exe|msi)',
-                                                  re.IGNORECASE)
-                            if extregex.search(filepath):
-                                if os.path.exists(filepath) and \
-                                   os.path.isfile(filepath):
-                                    redistfiles.append(filepath)
+    # build list of redist files from subdirectories when applicable
+    redistfiles = []
+    # check each subdirectory for matching values to determine valid files
+    for gamedir in gamedirs:
+        for subdir in os.listdir(gamedir):
+            sdpath = os.path.abspath(os.path.join(gamedir, subdir))
+            # regex for common redist subdirectory names
+            dirregex = re.compile(r'(.*)(directx|redist|miles)(.*)',
+                                  re.IGNORECASE)
+            if dirregex.match(sdpath):
+                # build list of all subdirectories and files from
+                # root (game subdirectory) that are valid for removal
+                for (root, dirs, files) in os.walk(sdpath):
+                    for file in files:
+                        # build path to each found file and verify
+                        # extension is a valid installation file
+                        filepath = os.path.join(root, file)
+                        extregex = re.compile(r'(cab|exe|msi)',
+                                              re.IGNORECASE)
+                        if extregex.search(filepath):
+                            if os.path.exists(filepath) and \
+                               os.path.isfile(filepath):
+                                redistfiles.append(filepath)
 
-        # Add filename and size to cleanable list.
-        for rfile in redistfiles:
-            cleanable[rfile] = ((os.path.getsize(rfile) / 1024) / 1024)
+    # Add filename and size to cleanable list.
+    for rfile in redistfiles:
+        cleanable[rfile] = ((os.path.getsize(rfile) / 1024) / 1024)
 
     # Check all game directories for valid .vdf files and check for additional
     # files for removal.
@@ -288,9 +286,6 @@ if __name__ == "__main__":
     parser.add_argument('--dryrun',
                         help='Run script without allowing any file removal.',
                         action='store_true')
-    parser.add_argument('--nodir',
-                        help='Do not clean redistributable directories.',
-                        action='store_true')
     parser.add_argument('--autolib',
                         help='Attempt to auto detect Steam libraries in use.',
                         action='store_true')
@@ -304,7 +299,7 @@ if __name__ == "__main__":
     if os.name == 'nt':
         ipath_steam = libsteam.winreg_read()    # Steam installation path
         cleanable = find_redist(ipath_steam, args.autolib,
-                                args.nodir, args.library)
+                                args.library)
 
         if len(cleanable) > 0:
             if args.dryrun:
