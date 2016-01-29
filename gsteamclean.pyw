@@ -3,6 +3,8 @@
 # Filename:         gsteamclean.pyw
 # Description:      tkinter frontend for steamclean.py
 
+from providers import libsteam
+
 from os import path as ospath
 from sys import path as syspath
 
@@ -135,7 +137,7 @@ class gSteamclean(Tk):
     def __init__(self):
         Tk.__init__(self)
 
-        steamdir = sc.win_reg_check()
+        steamdir = libsteam.winreg_read()
 
         self.title('steamclean v' + sc.VERSION)
         self.resizable(height=FALSE, width=FALSE)
@@ -148,7 +150,7 @@ class gSteamclean(Tk):
         self.fdata_frame = FileDataFrame(self, row=2)
 
         if steamdir:
-            libs = sc.get_libraries(steamdir=steamdir)
+            libs = libsteam.get_libraries(steamdir=steamdir)
             for lib in libs:
                 self.lib_frame.lib_list.insert(END, lib)
 
