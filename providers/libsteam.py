@@ -7,7 +7,6 @@ from providers import libproviders
 import logging
 import os
 import re
-import winreg
 
 # module specific sublogger to avoid duplicate log entries
 liblogger = logging.getLogger('steamclean.libsteam')

@@ -5,7 +5,6 @@
 from providers import libproviders
 
 import logging
-import winreg
 
 # module specific sublogger to avoid duplicate log entries
 liblogger = logging.getLogger('steamclean.libgalaxy')
