@@ -60,14 +60,12 @@ def print_header(filename=None):
     print('Current operating system: %s %s\n' % (pp(), pa()[0]))
 
 
-def find_redist(provider_dir, autolib=False, library=None):
-    """ Find all redistributable files and read .vdf files to determine
-        all files which can be safely removed. Always check .vdf file
-        for removable data but include standard redistributable paths. """
+def find_redist(provider_dir, autolib=False, customdir=None):
+    """ Create list and scan all directories for removable data. """
 
-    gamedirs = {}   # list of all valid game directories found
-    cleanable = {}  # list of all files to be removed
-    liblist = []    # list to hold any provided libraries
+    gamedirs = {}       # list of all valid game directories
+    cleanable = {}      # list of all files to be removed
+    customlist = []     # list to hold any provided custom directories
 
     # validate provider_directory or prompt for input when invalid or missing
     while not os.path.isdir(provider_dir) or not os.path.exists(provider_dir):
@@ -79,8 +77,8 @@ def find_redist(provider_dir, autolib=False, library=None):
     # Validate Steam installation path.
     if os.path.isdir(provider_dir):
         if autolib:
-            for lib in libsteam.get_libraries(provider_dir):
-                liblist.append(lib)
+            for subdir in libsteam.get_libraries(provider_dir):
+                customlist.append(subdir)
         provider_dir = libsteam.fix_game_path(provider_dir)
         sclogger.info('Game installations located at %s', provider_dir)
 
@@ -91,46 +89,46 @@ def find_redist(provider_dir, autolib=False, library=None):
     # ensure the path provided exists and is a valid directory
     try:
         if os.path.exists(provider_dir) and os.path.isdir(provider_dir):
-            for dir in os.listdir(provider_dir):
+            for subdir in os.listdir(provider_dir):
                 # if path is a directory and not already in list add it
-                if os.path.isdir(os.path.join(provider_dir, dir)):
-                    if dir not in gamedirs:
+                if os.path.isdir(os.path.join(provider_dir, subdir)):
+                    if subdir not in gamedirs:
                         # add new key matching game directories found
-                        gamedirs[os.path.join(provider_dir, dir)] = ''
+                        gamedirs[os.path.join(provider_dir, subdir)] = ''
     # print directory to log if it is not found or invalid
     except FileNotFoundError:
         sclogger.error('Directory %s is missing or invalid, skipping',
                        provider_dir)
         print('Directory %s is missing or invalid, skipping' % (provider_dir))
 
-    if library is not None:
+    if customdir is not None:
         # split list is provided via cli application as a string
-        if type(library) is str:
-            for lib in library.lower().split(','):
-                liblist.append(lib)
+        if type(customdir) is str:
+            for subdir in customdir.lower().split(','):
+                customlist.append(subdir)
         else:
-            for lib in library:
-                liblist.append(lib)
+            for subdir in customdir:
+                customlist.append(subdir)
     else:
-        sclogger.info('No additional libraries provided.')
+        sclogger.info('No additional directories will be scanned.')
 
-    if len(liblist) > 0:
+    if len(customlist) > 0:
         # Check all provided libraries.
-        for lib in liblist:
+        for subdir in customlist:
             # correct path issues and validate path
-            lib = libsteam.fix_game_path(lib)
-            # Verify library path exists and is a directory
-            if not os.path.exists(lib) or not os.path.isdir(lib):
-                sclogger.warning('Ignoring invalid directory at %s', lib)
+            subdir = libsteam.fix_game_path(subdir)
+            # Verify customdir path exists and is a directory
+            if not os.path.exists(subdir) or not os.path.isdir(subdir):
+                sclogger.warning('Ignoring invalid directory at %s', subdir)
                 continue
 
-            sclogger.info('Checking library at %s', lib)
-            print('Checking library at %s' % (lib))
+            sclogger.info('Checking additional directory at %s', subdir)
+            print('Checking additional directory at %s' % (subdir))
 
-            # build list of all valid game directories in each library
-            if os.path.exists(lib) and os.path.isdir(lib):
-                for dir in os.listdir(lib):
-                    libsubdir = os.path.join(lib, dir)
+            # build list of all valid game directories in each customdir
+            if os.path.exists(subdir) and os.path.isdir(subdir):
+                for dir in os.listdir(subdir):
+                    libsubdir = os.path.join(subdir, dir)
                     if os.path.exists(libsubdir) and os.path.isdir(libsubdir):
                         if libsubdir not in gamedirs:
                             # add key for each located directory
