@@ -8,7 +8,7 @@ import winreg
 
 liblogger = logging.getLogger('steamclean.libproviders')
 
-def winreg_read(keypath):
+def winreg_read(keypath, subkeyname):
     """ Get provider installation path from reading registry data.
     If unable to read registry information prompt user for input. """
 
@@ -34,7 +34,7 @@ def winreg_read(keypath):
         regkey = winreg.OpenKeyEx(winreg.HKEY_LOCAL_MACHINE, regpath, 0,
                                   regopts)
         # Save installation path value and close open registry key.
-        ipath = winreg.QueryValueEx(regkey, 'InstallPath')[0]
+        ipath = winreg.QueryValueEx(regkey, subkeyname)[0]
 
     except PermissionError:
         liblogger.error('Permission denied to read registry key',
