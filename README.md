@@ -69,12 +69,14 @@ Run the executable from a command prompt in order to see the cause of the error,
 Simply verify the game files using the specific provider's recommended method.
 
 *Steam:*
+
 1. Right click the game in your Steam client
 2. Select 'Properties'
 3. Navigate to the 'Local Files' tab
 4. Click 'Verify integrity of game cache'
 
 *GoG Galaxy:*
+
 1. Select the game from the library view
 2. Click the 'More' button
 3. Click 'Verify/Repair' from the 'Manage...' option
