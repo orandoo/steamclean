@@ -28,7 +28,8 @@ class ProviderFrame(ttk.Frame):
         # set button to disabled as this path should be automatically detected
         # and should not need modified
         self.provider_list = Listbox(parent, width=64, height=4)
-        self.provider_list.grid(column=col+1, row=row, padx=10, pady=2, sticky=W)
+        self.provider_list.grid(column=col+1, row=row, padx=10, pady=2,
+                                sticky=W)
 
 
 class CustomDirFrame(ttk.Frame):
