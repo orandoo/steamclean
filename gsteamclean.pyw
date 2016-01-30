@@ -175,8 +175,8 @@ class gSteamclean(Tk):
             treeview.delete(item)
 
         # build list of detected files from selected paths
-        files = sc.find_redist(steamdir=self.sdir_frame.sdir_entry.get(),
-                               library=self.lib_frame.lib_list.get(0, END))
+        files = sc.find_redist(provider_dir=self.sdir_frame.sdir_entry.get(),
+                               customdir=self.lib_frame.lib_list.get(0, END))
 
         totals['count'] = str(len(files))
 
