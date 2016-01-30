@@ -54,7 +54,7 @@ python steamclean.py -l "D:\Program Files (x86)\Steam"
 To exclude files from removal, simply create a file called excludes.txt in the same directory as this script with one line per item to exclude. Excludes are not case sensitive but must be on individual lines to be valid.
 
 ### Troubleshooting
-** Executable will not start**
+**Executable will not start**
 Install either this [VisualC++ Runtime](https://download.microsoft.com/download/C/E/5/CE514EAE-78A8-4381-86E8-29108D78DBD4/VC_redist.x64.exe) or the full [Python 3 runtime](https://www.python.org/)
 
 **Application crashes or errors**
