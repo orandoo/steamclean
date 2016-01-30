@@ -5,7 +5,7 @@
 # Description:      Script to find and remove extraneous files from
 #                   Steam game installation directories.
 
-from providers import libsteam
+from providers import libsteam, libgalaxy
 
 from codecs import StreamReader
 from datetime import datetime
@@ -60,46 +60,55 @@ def print_header(filename=None):
     print('Current operating system: %s %s\n' % (pp(), pa()[0]))
 
 
-def find_redist(provider_dir, autolib=False, customdir=None):
+def find_redist(autolib=False, customdir=None):
     """ Create list and scan all directories for removable data. """
+
+    providerdirs = []
+    if os.name == 'nt':
+        providerdirs.append(libsteam.winreg_read())
+        providerdirs.append(libgalaxy.winreg_read())
 
     gamedirs = {}       # list of all valid game directories
     cleanable = {}      # list of all files to be removed
     customlist = []     # list to hold any provided custom directories
 
-    # validate provider_directory or prompt for input when invalid or missing
-    while not os.path.isdir(provider_dir) or not os.path.exists(provider_dir):
-        sclogger.warning('Invalid or missing directory at %s', provider_dir)
-        provider_dir = os.path.abspath(
-            input('Invalid or missing directory, ' +
-                  'please re-enter the directory: '))
+    if len(providerdirs) == 0:
+        # For non-Windows OS prompt for directory input if needed
+        while not os.path.isdir(inputdir) or not os.path.exists(inputdir):
+            sclogger.warning('Invalid or missing directory at %s', inputdir)
+            inputdir = os.path.abspath(
+                input('Invalid or missing directory, ' +
+                      'please re-enter the directory: '))
+            providerdirs.append(inputdir)
 
-    # Validate Steam installation path.
-    if os.path.isdir(provider_dir):
-        if autolib:
-            for subdir in libsteam.get_libraries(provider_dir):
-                customlist.append(subdir)
-        provider_dir = libsteam.fix_game_path(provider_dir)
-        sclogger.info('Game installations located at %s', provider_dir)
+    for pdir in providerdirs:
+        # Validate provider installation path.
+        print(pdir)
+        if os.path.isdir(pdir) and 'Steam' in pdir:
+            if autolib:
+                for subdir in libsteam.get_libraries(pdir):
+                    customlist.append(subdir)
+            pdir = libsteam.fix_game_path(pdir)
+            sclogger.info('Game installations located at %s', pdir)
 
-    # Gather game directories from default path.
-    sclogger.info('Checking %s', provider_dir)
-    print('Checking %s' % (provider_dir))
+        # Gather game directories from default path.
+        sclogger.info('Checking %s', pdir)
+        print('Checking %s' % (pdir))
 
-    # ensure the path provided exists and is a valid directory
-    try:
-        if os.path.exists(provider_dir) and os.path.isdir(provider_dir):
-            for subdir in os.listdir(provider_dir):
-                # if path is a directory and not already in list add it
-                if os.path.isdir(os.path.join(provider_dir, subdir)):
-                    if subdir not in gamedirs:
-                        # add new key matching game directories found
-                        gamedirs[os.path.join(provider_dir, subdir)] = ''
-    # print directory to log if it is not found or invalid
-    except FileNotFoundError:
-        sclogger.error('Directory %s is missing or invalid, skipping',
-                       provider_dir)
-        print('Directory %s is missing or invalid, skipping' % (provider_dir))
+        # ensure the path provided exists and is a valid directory
+        try:
+            if os.path.exists(pdir) and os.path.isdir(pdir):
+                for subdir in os.listdir(pdir):
+                    # if path is a directory and not already in list add it
+                    if os.path.isdir(os.path.join(pdir, subdir)):
+                        if subdir not in gamedirs:
+                            # add new key matching game directories found
+                            gamedirs[os.path.join(pdir, subdir)] = ''
+        # print directory to log if it is not found or invalid
+        except FileNotFoundError:
+            sclogger.error('Directory %s is missing or invalid, skipping',
+                           pdir)
+            print('Directory %s is missing or invalid, skipping' % (pdir))
 
     if customdir is not None:
         # split list is provided via cli application as a string
@@ -295,9 +304,7 @@ if __name__ == "__main__":
     print_header()
 
     if os.name == 'nt':
-        ipath_steam = libsteam.winreg_read()    # Steam installation path
-        cleanable = find_redist(ipath_steam, args.autolib,
-                                args.dir)
+        cleanable = find_redist(args.autolib, args.dir)
 
         if len(cleanable) > 0:
             if args.dryrun:
