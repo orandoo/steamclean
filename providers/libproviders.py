@@ -8,6 +8,7 @@ import winreg
 
 liblogger = logging.getLogger('steamclean.libproviders')
 
+
 def winreg_read(keypath, subkeyname):
     """ Get provider installation path from reading registry data.
     If unable to read registry information prompt user for input. """
@@ -18,8 +19,7 @@ def winreg_read(keypath, subkeyname):
 
     # use architecture returned to evaluate appropriate registry key
     if arch == '64bit':
-        regpath =  'SOFTWARE\Wow6432Node\\' + keypath
-        #regpath = r'SOFTWARE\Wow6432Node\Valve\Steam'
+        regpath = 'SOFTWARE\Wow6432Node\\' + keypath
         regopts = (winreg.KEY_WOW64_64KEY + winreg.KEY_READ)
     elif arch == '32bit':
         liblogger.info('32 bit operating system detected')

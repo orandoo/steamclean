@@ -4,7 +4,6 @@
 
 from providers import libproviders
 
-from platform import architecture as pa
 import logging
 import os
 import re
@@ -22,6 +21,7 @@ def winreg_read():
     liblogger.info('Steam installation path found at %s', install_path)
 
     return install_path
+
 
 def get_libraries(steamdir):
     """ Attempt to automatically read extra Steam library directories by
