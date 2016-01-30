@@ -9,7 +9,7 @@ from providers import libsteam, libgalaxy
 
 from codecs import StreamReader
 from datetime import datetime
-from platform import architecture as pa
+from platform import machine as pm
 from platform import platform as pp
 import argparse
 import logging
@@ -52,12 +52,12 @@ def print_header(filename=None):
     # Attempt to write log data and skip upon exception
     try:
         sclogger.info('Starting %s', header)
-        sclogger.info('Current operating system: ' + pp() + ' ' + pa()[0])
+        sclogger.info('Current operating system: ' + pp() + ' ' + pm())
     except:
         pass
 
     print('Starting %s' % (header))
-    print('Current operating system: %s %s\n' % (pp(), pa()[0]))
+    print('Current operating system: %s %s\n' % (pp(), pm()))
 
 
 def find_redist(provider_dirs=None, customdirs=None):

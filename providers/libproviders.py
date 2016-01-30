@@ -1,7 +1,7 @@
 # filename:     libproviders.py
 # description:  Common functions for provider library usage.
 
-from platform import architecture as pa
+from platform import machine as pm
 import logging
 import os
 import winreg
@@ -13,15 +13,16 @@ def winreg_read(keypath, subkeyname):
     """ Get provider installation path from reading registry data.
     If unable to read registry information prompt user for input. """
 
-    arch = pa()[0]
+    #arch = pa()[0]
+    system_type = pm()
     regbase = 'HKEY_LOCAL_MACHINE\\'
     regkey = None
 
     # use architecture returned to evaluate appropriate registry key
-    if arch == '64bit':
+    if system_type == 'AMD64':
         regpath = 'SOFTWARE\Wow6432Node\\' + keypath
         regopts = (winreg.KEY_WOW64_64KEY + winreg.KEY_READ)
-    elif arch == '32bit':
+    elif system_type == 'i386':
         liblogger.info('32 bit operating system detected')
 
         regpath = 'SOFTWARE\\' + keypath
