@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 # Filename:         steamclean.py
-# Version:          0.6.0
+# Version:          0.7.0
 # Description:      Script to find and remove extraneous files from
 #                   Steam game installation directories.
 
@@ -60,7 +60,7 @@ def print_header(filename=None):
     print('Current operating system: %s %s\n' % (pp(), pa()[0]))
 
 
-def find_redist(autolib=False, customdir=None):
+def find_redist(provider_dirs=None, customdirs=None):
     """ Create list and scan all directories for removable data. """
 
     providerdirs = []
@@ -83,11 +83,9 @@ def find_redist(autolib=False, customdir=None):
 
     for pdir in providerdirs:
         # Validate provider installation path.
-        print(pdir)
         if os.path.isdir(pdir) and 'Steam' in pdir:
-            if autolib:
-                for subdir in libsteam.get_libraries(pdir):
-                    customlist.append(subdir)
+            for subdir in libsteam.get_libraries(pdir):
+                customlist.append(subdir)
             pdir = libsteam.fix_game_path(pdir)
             sclogger.info('Game installations located at %s', pdir)
 
@@ -110,13 +108,13 @@ def find_redist(autolib=False, customdir=None):
                            pdir)
             print('Directory %s is missing or invalid, skipping' % (pdir))
 
-    if customdir is not None:
+    if customdirs:
         # split list is provided via cli application as a string
-        if type(customdir) is str:
-            for subdir in customdir.lower().split(','):
+        if type(customdirs) is str:
+            for subdir in customdirs.lower().split(','):
                 customlist.append(subdir)
         else:
-            for subdir in customdir:
+            for subdir in customdirs:
                 customlist.append(subdir)
     else:
         sclogger.info('No additional directories will be scanned.')
@@ -293,9 +291,6 @@ if __name__ == "__main__":
     parser.add_argument('--dryrun',
                         help='Run script without allowing any file removal',
                         action='store_true')
-    parser.add_argument('--autolib',
-                        help='Attempt to auto detect Steam libraries in use',
-                        action='store_true')
     parser.add_argument('-d', '--dir',
                         help='Additional directories to scan '
                         '(comma separated)')
@@ -304,7 +299,7 @@ if __name__ == "__main__":
     print_header()
 
     if os.name == 'nt':
-        cleanable = find_redist(args.autolib, args.dir)
+        cleanable = find_redist(args.dir)
 
         if len(cleanable) > 0:
             if args.dryrun:
