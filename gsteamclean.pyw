@@ -3,7 +3,7 @@
 # Filename:         gsteamclean.pyw
 # Description:      tkinter frontend for steamclean.py
 
-from providers import libsteam
+from providers import libsteam, libgalaxy
 
 from os import path as ospath
 from sys import path as syspath
@@ -16,40 +16,22 @@ from tkinter import ttk
 import steamclean as sc
 
 
-class SdirFrame(ttk.Frame):
+class ProviderFrame(ttk.Frame):
     """ Top UI frame to hold data for the default Steam directory. """
 
     def __init__(self, parent, col=0, row=0, steamdir=None):
         ttk.Frame.__init__(self, parent)
 
-        self.sdir_label = ttk.Label(parent, text='Steam directory:')
-        self.sdir_label.grid(column=col, row=row, padx=10, pady=2, sticky=W)
-
-        # create a readonly entry field for the Steam directory,
-        # this is to be selected via a dialog to ensure it is valid
-        # utilize a StringVar in order to set the text is the 'disabled' widget
-        self.sdir = StringVar()
-        if steamdir:
-            self.sdir.set(steamdir)
+        self.sdir_label = ttk.Label(parent, text='Provider directories:')
+        self.sdir_label.grid(column=col, row=row, padx=10, pady=2, sticky=NW)
 
         # set button to disabled as this path should be automatically detected
         # and should not need modified
-        self.sdir_entry = ttk.Entry(parent, width=64, state='readonly',
-                                    textvariable=self.sdir)
-        self.sdir_entry.grid(column=col+1, row=row, padx=10, pady=2, sticky=W)
-
-        # create a select button which will open a select directory dialog
-        self.sdir_button = ttk.Button(parent, text='...', width=4,
-                                      command=self.set_sdir)
-        self.sdir_button.grid(column=col+2, row=row, padx=10, pady=2, sticky=W)
-
-    def set_sdir(self):
-        """ Simply set the Steam directory from the dialog."""
-
-        self.sdir.set(gSteamclean.get_dir())
+        self.provider_list = Listbox(parent, width=64, height=4)
+        self.provider_list.grid(column=col+1, row=row, padx=10, pady=2, sticky=W)
 
 
-class LibraryFrame(ttk.Frame):
+class CustomDirFrame(ttk.Frame):
     """ UI frame to hold information regarding selected libraries to scan. """
 
     def __init__(self, parent, col=0, row=0):
@@ -138,16 +120,24 @@ class gSteamclean(Tk):
         Tk.__init__(self)
 
         steamdir = libsteam.winreg_read()
+        galaxydir = libgalaxy.winreg_read()
+        self.providers = [steamdir, galaxydir]
 
         self.title('steamclean v' + sc.VERSION)
         self.resizable(height=FALSE, width=FALSE)
 
         if steamdir:
-            self.sdir_frame = SdirFrame(self, steamdir=steamdir, row=0)
+            self.provider_frame = ProviderFrame(self, steamdir=steamdir, row=0)
         else:
-            self.sdir_frame = SdirFrame(self, row=0)
-        self.lib_frame = LibraryFrame(self, row=1)
+            self.provider_frame = ProviderFrame(self, row=0)
+        self.lib_frame = CustomDirFrame(self, row=1)
         self.fdata_frame = FileDataFrame(self, row=2)
+
+        for provider in self.providers:
+            self.provider_frame.provider_list.insert(END, provider)
+            self.provider_frame.provider_list.itemconfig(END, bg='gray90')
+
+        self.provider_frame.provider_list['state'] = DISABLED
 
         if steamdir:
             libs = libsteam.get_libraries(steamdir=steamdir)
@@ -175,8 +165,8 @@ class gSteamclean(Tk):
             treeview.delete(item)
 
         # build list of detected files from selected paths
-        files = sc.find_redist(provider_dir=self.sdir_frame.sdir_entry.get(),
-                               customdir=self.lib_frame.lib_list.get(0, END))
+        files = sc.find_redist(provider_dirs=self.providers,
+                               customdirs=self.lib_frame.lib_list.get(0, END))
 
         totals['count'] = str(len(files))
 
