@@ -18,7 +18,7 @@ def winreg_read():
     """ Get Steam installation path from reading registry data.
     If unable to read registry information prompt user for input. """
 
-    install_path = libproviders.winreg_read(r'Valve\Steam')
+    install_path = libproviders.winreg_read(r'Valve\Steam', 'InstallPath')
     liblogger.info('Steam installation path found at %s', install_path)
 
     return install_path
