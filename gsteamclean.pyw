@@ -3,7 +3,8 @@
 # Filename:         gsteamclean.pyw
 # Description:      tkinter frontend for steamclean.py
 
-from providers import libsteam, libgalaxy
+import providers.libsteam as libsteam
+import providers.libgalaxy as libgalaxy
 
 from os import path as ospath
 from sys import path as syspath

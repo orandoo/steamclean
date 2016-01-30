@@ -2,7 +2,7 @@
 # description:  Collection of functions directly related to the GoG Galaxy
 #               game client.
 
-from providers import libproviders
+import providers.libproviders as libproviders
 
 import logging
 

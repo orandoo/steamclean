@@ -5,7 +5,8 @@
 # Description:      Script to find and remove extraneous files from
 #                   Steam game installation directories.
 
-from providers import libsteam, libgalaxy
+import providers.libsteam as libsteam
+import providers.libgalaxy as libgalaxy
 
 from codecs import StreamReader
 from datetime import datetime

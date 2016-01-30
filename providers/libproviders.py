@@ -13,7 +13,6 @@ def winreg_read(keypath, subkeyname):
     """ Get provider installation path from reading registry data.
     If unable to read registry information prompt user for input. """
 
-    #arch = pa()[0]
     system_type = pm()
     regbase = 'HKEY_LOCAL_MACHINE\\'
     regkey = None

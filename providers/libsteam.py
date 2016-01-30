@@ -2,7 +2,7 @@
 # description:  Collection of functions directly related to the Steam client
 #               handling within steamclean.py
 
-from providers import libproviders
+import providers.libproviders as libproviders
 
 import logging
 import os
