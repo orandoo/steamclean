@@ -60,7 +60,7 @@ def print_header(filename=None):
     print('Current operating system: %s %s\n' % (pp(), pa()[0]))
 
 
-def find_redist(steamdir, autolib=False, library=None):
+def find_redist(provider_dir, autolib=False, library=None):
     """ Find all redistributable files and read .vdf files to determine
         all files which can be safely removed. Always check .vdf file
         for removable data but include standard redistributable paths. """
@@ -69,39 +69,39 @@ def find_redist(steamdir, autolib=False, library=None):
     cleanable = {}  # list of all files to be removed
     liblist = []    # list to hold any provided libraries
 
-    # validate steamdirectory or prompt for input when invalid or missing
-    while not os.path.isdir(steamdir) or not os.path.exists(steamdir):
-        sclogger.warning('Invalid or missing directory at %s', steamdir)
-        steamdir = os.path.abspath(
+    # validate provider_directory or prompt for input when invalid or missing
+    while not os.path.isdir(provider_dir) or not os.path.exists(provider_dir):
+        sclogger.warning('Invalid or missing directory at %s', provider_dir)
+        provider_dir = os.path.abspath(
             input('Invalid or missing directory, ' +
                   'please re-enter the directory: '))
 
     # Validate Steam installation path.
-    if os.path.isdir(steamdir):
+    if os.path.isdir(provider_dir):
         if autolib:
-            for lib in libsteam.get_libraries(steamdir):
+            for lib in libsteam.get_libraries(provider_dir):
                 liblist.append(lib)
-        steamdir = libsteam.fix_game_path(steamdir)
-        sclogger.info('Game installations located at %s', steamdir)
+        provider_dir = libsteam.fix_game_path(provider_dir)
+        sclogger.info('Game installations located at %s', provider_dir)
 
     # Gather game directories from default path.
-    sclogger.info('Checking %s', steamdir)
-    print('Checking %s' % (steamdir))
+    sclogger.info('Checking %s', provider_dir)
+    print('Checking %s' % (provider_dir))
 
     # ensure the path provided exists and is a valid directory
     try:
-        if os.path.exists(steamdir) and os.path.isdir(steamdir):
-            for dir in os.listdir(steamdir):
+        if os.path.exists(provider_dir) and os.path.isdir(provider_dir):
+            for dir in os.listdir(provider_dir):
                 # if path is a directory and not already in list add it
-                if os.path.isdir(os.path.join(steamdir, dir)):
+                if os.path.isdir(os.path.join(provider_dir, dir)):
                     if dir not in gamedirs:
                         # add new key matching game directories found
-                        gamedirs[os.path.join(steamdir, dir)] = ''
+                        gamedirs[os.path.join(provider_dir, dir)] = ''
     # print directory to log if it is not found or invalid
     except FileNotFoundError:
         sclogger.error('Directory %s is missing or invalid, skipping',
-                       steamdir)
-        print('Directory %s is missing or invalid, skipping' % (steamdir))
+                       provider_dir)
+        print('Directory %s is missing or invalid, skipping' % (provider_dir))
 
     if library is not None:
         # split list is provided via cli application as a string
@@ -284,14 +284,14 @@ if __name__ == "__main__":
         description='Find and clean extraneous files from game directories '
                     'including various Windows redistributables.')
     parser.add_argument('--dryrun',
-                        help='Run script without allowing any file removal.',
+                        help='Run script without allowing any file removal',
                         action='store_true')
     parser.add_argument('--autolib',
-                        help='Attempt to auto detect Steam libraries in use.',
+                        help='Attempt to auto detect Steam libraries in use',
                         action='store_true')
-    parser.add_argument('-l', '--library',
-                        help='Additional Steam libraries to examine '
-                        '(comma separated).')
+    parser.add_argument('-d', '--dir',
+                        help='Additional directories to scan '
+                        '(comma separated)')
     args = parser.parse_args()
 
     print_header()
@@ -299,7 +299,7 @@ if __name__ == "__main__":
     if os.name == 'nt':
         ipath_steam = libsteam.winreg_read()    # Steam installation path
         cleanable = find_redist(ipath_steam, args.autolib,
-                                args.library)
+                                args.dir)
 
         if len(cleanable) > 0:
             if args.dryrun:
