@@ -55,23 +55,26 @@ To exclude files from removal, simply create a file called excludes.txt in the s
 
 ### Troubleshooting
 **Executable will not start**
+
 Install either this [VisualC++ Runtime](https://download.microsoft.com/download/C/E/5/CE514EAE-78A8-4381-86E8-29108D78DBD4/VC_redist.x64.exe) or the full [Python 3 runtime](https://www.python.org/)
 
 **Application crashes or errors**
+
 Run the executable from a command prompt in order to see the cause of the error, or attempt to run the Python script directly.
 
 *Note: Running the script directly does require the Python interpreter be installed*
 
 **A particular game will not start**
+
 Simply verify the game files using the specific provider's recommended method.
 
-For Steam: 
+*Steam:*
 1. Right click the game in your Steam client
 2. Select 'Properties'
 3. Navigate to the 'Local Files' tab
 4. Click 'Verify integrity of game cache'
 
-For GoG Galaxy:
+*GoG Galaxy:*
 1. Select the game from the library view
 2. Click the 'More' button
 3. Click 'Verify/Repair' from the 'Manage...' option
