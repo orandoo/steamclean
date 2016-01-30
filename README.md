@@ -16,7 +16,7 @@ There are two versions of this application, gsteamclean and steamclean. The firs
 
 ### Usage: gsteamclean ###
 
-![Alt gsteamclean gui](https://github.com/evitalis/steamclean/blob/dev_gui/screenshot.jpg)
+![Alt gsteamclean gui](https://github.com/evitalis/steamclean/blob/dev/screenshot.jpg)
 
 - Click the ellipses (...) button if your default Steam directory is not found and choose it here.
 - If you wish to add additonal libraries click the 'Add dir' button to select additional directory to check.
@@ -28,18 +28,15 @@ The 'Clean all' button will remove all files displayed in the detected files lis
 
 ### Usage: steamclean ###
 ```
-usage: steamclean.py [-h] [--dryrun] [--autolib] [-l LIBRARY]
+usage: steamclean.py [-h] [--dryrun] [-d DIR]
 
 Find and clean extraneous files from game directories including various
 Windows redistributables.
 
 optional arguments:
-  -h, --help            show this help message and exit
-  --dryrun              Run script without allowing any file removal.
-  --autolib             Attempt to auto detect Steam libraries in use.
-  -l LIBRARY, --library LIBRARY
-                        Additional Steam libraries to examine (comma
-                        separated).
+  -h, --help         show this help message and exit
+  --dryrun           Run script without allowing any file removal
+  -d DIR, --dir DIR  Additional directories to scan (comma separated)
 ```
 
 ### Sample Commands ###
@@ -57,16 +54,30 @@ python steamclean.py -l "D:\Program Files (x86)\Steam"
 To exclude files from removal, simply create a file called excludes.txt in the same directory as this script with one line per item to exclude. Excludes are not case sensitive but must be on individual lines to be valid.
 
 ### Troubleshooting
-This was tested on my own system and I noticed no issues with my games. I took care to filter out as many files as possible and to limit the scope. 
+** Executable will not start**
+Install either this [VisualC++ Runtime](https://download.microsoft.com/download/C/E/5/CE514EAE-78A8-4381-86E8-29108D78DBD4/VC_redist.x64.exe) or the full [Python 3 runtime](https://www.python.org/)
 
-If you encounter a crash please include the stack trace information from the terminal in your bug report and any details that may aid in correcting the code.
+**Application crashes or errors**
+Run the executable from a command prompt in order to see the cause of the error, or attempt to run the Python script directly.
 
-If a file is removed that should not have been do not panic. Simply verify the game files and it will be replaced. Let me know what the file name is and what game it belongs to so I can look into fine tuning the search algorithm.
+*Note: Running the script directly does require the Python interpreter be installed*
+
+**A particular game will not start**
+Simply verify the game files using the specific provider's recommended method.
+
+For Steam: 
+1. Right click the game in your Steam client
+2. Select 'Properties'
+3. Navigate to the 'Local Files' tab
+4. Click 'Verify integrity of game cache'
+
+For GoG Galaxy:
+1. Select the game from the library view
+2. Click the 'More' button
+3. Click 'Verify/Repair' from the 'Manage...' option
 
 ### Known issues
-Input prompts will continue to be displayed with each additional input. This has no effect on the running script other than cluttering up the terminal.
-
-Using output redirection will not allow input to be sent to the script. If redirecting output use the preview option and simply end the script after a few seconds (Ctrl+C). You can them view the file in any plain text editor and rerun the script normally.
+See issues list on the application's GitHub page
 
 ### License
 
