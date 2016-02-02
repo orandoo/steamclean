@@ -135,9 +135,9 @@ class gSteamclean(Tk):
         self.lib_frame = CustomDirFrame(self, row=1)
         self.fdata_frame = FileDataFrame(self, row=2)
 
-        for provider in self.providers:
-            self.provider_frame.provider_list.insert(END, provider)
-            self.provider_frame.provider_list.itemconfig(END, bg='gray90')
+        if len(self.providers) > 0:
+            for provider in self.providers:
+                self.provider_frame.provider_list.insert(END, provider)
 
         self.provider_frame.provider_list['state'] = DISABLED
 
