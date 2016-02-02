@@ -17,7 +17,7 @@ def winreg_read():
     If unable to read registry information prompt user for input. """
 
     install_path = libproviders.winreg_read(r'Valve\Steam', 'InstallPath')
-    if install_path not None:
+    if install_path is not None:
         liblogger.info('Steam installation path found at %s', install_path)
     else:
         liblogger.warn('Steam installation not found by registry check')

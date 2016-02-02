@@ -16,7 +16,7 @@ def winreg_read():
 
     install_path = libproviders.winreg_read(r'GoG.com\GalaxyClient\settings',
                                             'libraryPath')
-    if install_path not None:
+    if install_path is not None:
         liblogger.info('GoG Galaxy installation path found at %s', install_path)
     else:
         liblogger.warn('GoG Galaxy installation not found by registry check')

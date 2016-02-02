@@ -70,7 +70,7 @@ def find_redist(provider_dirs=None, customdirs=None):
         providerdirs.append(libgalaxy.winreg_read())
 
     # Remove all invalid provider directories if not found via registry check
-    providerdirs = [p for p in providerdirs if (p not None)]
+    providerdirs = [p for p in providerdirs if p is not None]
 
     gamedirs = {}       # list of all valid game directories
     cleanable = {}      # list of all files to be removed
