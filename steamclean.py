@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 # Filename:         steamclean.py
-# Version:          0.7.0
+# Version:          0.7.1
 # Description:      Script to find and remove extraneous files from
 #                   Steam game installation directories.
 
@@ -20,7 +20,7 @@ import re
 if (os.name == 'nt'):
     import winreg
 
-VERSION = '0.7.0'   # Global version number as string
+VERSION = '0.7.1'   # Global version number as string
 
 # build sclogger and its configuration to write script data to specified log
 sclogger = logging.getLogger('steamclean')
@@ -68,6 +68,9 @@ def find_redist(provider_dirs=None, customdirs=None):
     if os.name == 'nt':
         providerdirs.append(libsteam.winreg_read())
         providerdirs.append(libgalaxy.winreg_read())
+
+    # Remove all invalid provider directories if not found via registry check
+    providerdirs = [p for p in providerdirs if (p not None)]
 
     gamedirs = {}       # list of all valid game directories
     cleanable = {}      # list of all files to be removed
