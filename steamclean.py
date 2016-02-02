@@ -76,6 +76,7 @@ def find_redist(provider_dirs=None, customdirs=None):
     cleanable = {}      # list of all files to be removed
     customlist = []     # list to hold any provided custom directories
 
+    inputdir = ''
     if len(providerdirs) == 0:
         # For non-Windows OS prompt for directory input if needed
         while not os.path.isdir(inputdir) or not os.path.exists(inputdir):
