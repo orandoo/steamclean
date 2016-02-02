@@ -36,11 +36,19 @@ def winreg_read(keypath, subkeyname):
         # Save installation path value and close open registry key.
         ipath = winreg.QueryValueEx(regkey, subkeyname)[0]
 
+        installpath = os.path.abspath(ipath.strip())
+        return installpath
+
     except PermissionError:
         liblogger.error('Permission denied to read registry key',
                         regbase + regpath)
         liblogger.error('Run this script as administrator to resolve.')
         print('Permission denied to read registry data at %s.', regpath)
+
+        return None
+
+    except:
+        return None
 
     finally:
         # Ensure registry key is closed after reading as applicable.
@@ -49,6 +57,3 @@ def winreg_read(keypath, subkeyname):
                            'installation path', regbase + regpath)
 
             winreg.CloseKey(regkey)
-
-        installpath = os.path.abspath(ipath.strip())
-        return installpath
