@@ -202,8 +202,8 @@ class gSteamclean(Tk):
             # need to use text here as the first column was repurposed
             flist[treeview.item(i, 'text')] = treeview.item(i, 'value')[0]
 
-        # prompt user to confirm the permanant deletion of detected files
-        confirm_prompt = 'Do you wish to permanantly delete all items?'
+        # prompt user to confirm the permanent deletion of detected files
+        confirm_prompt = 'Do you wish to permanently delete all items?'
         confirm = messagebox.askyesno('Confirm removal', confirm_prompt)
 
         # convert response into expected values for clean_data function
