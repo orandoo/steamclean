@@ -7,6 +7,7 @@
 
 import providers.libsteam as libsteam
 import providers.libgalaxy as libgalaxy
+import providers.liborigin as liborigin
 
 from codecs import StreamReader
 from datetime import datetime
@@ -69,6 +70,7 @@ def find_redist(provider_dirs=None, customdirs=None):
     if os.name == 'nt':
         providerdirs.append(libsteam.winreg_read())
         providerdirs.append(libgalaxy.winreg_read())
+        providerdirs.append(liborigin.winreg_read())
 
     # Remove all invalid provider directories if not found via registry check
     providerdirs = [p for p in providerdirs if p is not None]
@@ -76,6 +78,15 @@ def find_redist(provider_dirs=None, customdirs=None):
     gamedirs = {}       # list of all valid game directories
     cleanable = {}      # list of all files to be removed
     customlist = []     # list to hold any provided custom directories
+
+    if customdirs:
+        # split list is provided via cli application as a string
+        if type(customdirs) is str:
+            for subdir in customdirs.lower().split(','):
+                customlist.append(subdir)
+        else:
+            for subdir in customdirs:
+                customlist.append(subdir)
 
     inputdir = ''
     if len(providerdirs) == 0:
@@ -116,14 +127,6 @@ def find_redist(provider_dirs=None, customdirs=None):
         except:
             sclogger.exception('Unknown exception raised')
 
-    if customdirs:
-        # split list is provided via cli application as a string
-        if type(customdirs) is str:
-            for subdir in customdirs.lower().split(','):
-                customlist.append(subdir)
-        else:
-            for subdir in customdirs:
-                customlist.append(subdir)
     else:
         sclogger.info('No additional directories will be scanned.')
 
@@ -309,7 +312,7 @@ if __name__ == "__main__":
     print_header()
 
     if os.name == 'nt':
-        cleanable = find_redist(args.dir)
+        cleanable = find_redist(customdirs=args.dir)
 
         if len(cleanable) > 0:
             if args.dryrun:
