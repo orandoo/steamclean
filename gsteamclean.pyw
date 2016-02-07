@@ -19,7 +19,7 @@ import steamclean as sc
 
 
 class DirectoryFrame(ttk.Frame):
-    """ Top UI frame to hold data for the default Steam directory. """
+    """ Top UI frame containing the list of directories to be scanned. """
 
     def __init__(self, parent, col=0, row=0, steamdir=None):
         ttk.Frame.__init__(self, parent)
