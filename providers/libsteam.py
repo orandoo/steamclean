@@ -81,11 +81,9 @@ def check_vdf(gamedirs):
             if '.vdf' in file:
                 gamedirs[game] = os.path.abspath(os.path.join(game, file))
 
-    # Scrub dictionary of entries that do not have a valid .vdf file.
-    cleangamedirs = {}
-    for game in gamedirs:
-        if gamedirs[game] != '':
-            cleangamedirs[game] = gamedirs[game]
+    # Remove any directories that do not have a valid .vdf file.
+    # Get the key (game) and remove those with empty vpath (.vdf not present)
+    cleangamedirs = {game: vpath for game, vpath in gamedirs.items() if vpath}
 
     # Substitute game path for %INSTALLDIR% within .vdf file.
     for game in cleangamedirs:
