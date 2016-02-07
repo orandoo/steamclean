@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 # Filename:         steamclean.py
-# Version:          0.7.1
+# Version:          0.8.0
 # Description:      Script to find and remove extraneous files from
 #                   Steam game installation directories.
 
@@ -20,7 +20,7 @@ import re
 if (os.name == 'nt'):
     import winreg
 
-VERSION = '0.7.1'   # Global version number as string
+VERSION = '0.8.0'   # Global version number as string
 
 # build sclogger and its configuration to write script data to specified log
 sclogger = logging.getLogger('steamclean')
@@ -55,6 +55,7 @@ def print_header(filename=None):
         sclogger.info('Starting %s', header)
         sclogger.info('Current operating system: ' + pp() + ' ' + pm())
     except:
+        sclogger.exception('Unknown exception raised')
         pass
 
     print('Starting %s' % (header))
@@ -112,6 +113,8 @@ def find_redist(provider_dirs=None, customdirs=None):
             sclogger.error('Directory %s is missing or invalid, skipping',
                            pdir)
             print('Directory %s is missing or invalid, skipping' % (pdir))
+        except:
+            sclogger.exception('Unknown exception raised')
 
     if customdirs:
         # split list is provided via cli application as a string
@@ -259,6 +262,8 @@ def clean_data(filelist, confirm=''):
                 sclogger.error('Permission denied to file %s skipping...',
                                file)
                 print('Permission denied to file %s skipping...' % (file))
+            except:
+                sclogger.exception('Unknown exception raised')
 
         sclogger.info('%s file(s) removed successfully', removed)
         sclogger.info('%s file(s) excluded and not removed', excluded)

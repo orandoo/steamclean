@@ -48,6 +48,7 @@ def winreg_read(keypath, subkeyname):
         return None
 
     except:
+        liblogger.exception('Unknown exception raised')
         return None
 
     finally:

@@ -115,4 +115,7 @@ def check_vdf(gamedirs):
             except IndexError:
                 sclogger.error('Invalid data in file %s', vdffile)
 
+            except:
+                liblogger.exception('Unknown exception raised')
+
     return vdfcleanable
