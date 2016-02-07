@@ -39,9 +39,13 @@ class DirectoryFrame(ttk.Frame):
                                      command=self.add_library)
         self.lib_button.grid(column=col+2, row=row, padx=10, pady=2, sticky=NW)
 
-    def on_select(self, evt):
-        self.lib_button['text'] = 'Del dir'
-        self.lib_button['command'] = self.rm_library
+    def on_select(self, selection):
+        if self.dirlist.curselection():
+            self.lib_button['text'] = 'Del dir'
+            self.lib_button['command'] = self.rm_library
+        else:
+            self.lib_button['text'] = 'Add dir'
+            self.lib_button['command'] = self.add_library
 
     def add_library(self):
         """ Insert every selected directory chosen from the dialog.
