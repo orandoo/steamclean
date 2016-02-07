@@ -47,6 +47,10 @@ def winreg_read(keypath, subkeyname):
 
         return None
 
+    except FileNotFoundError:
+        fullkeypath = '\\'.join(s.strip('\\') for s in [regbase, regpath,
+                                                        subkeyname])
+        liblogger.warn('Registry key not found at %s', fullkeypath)
     except:
         liblogger.exception('Unknown exception raised')
         return None
