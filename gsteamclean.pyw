@@ -5,6 +5,7 @@
 
 import providers.libsteam as libsteam
 import providers.libgalaxy as libgalaxy
+import providers.liborigin as liborigin
 
 from os import path as ospath
 from sys import path as syspath
@@ -17,36 +18,22 @@ from tkinter import ttk
 import steamclean as sc
 
 
-class ProviderFrame(ttk.Frame):
+class DirectoryFrame(ttk.Frame):
     """ Top UI frame to hold data for the default Steam directory. """
 
     def __init__(self, parent, col=0, row=0, steamdir=None):
         ttk.Frame.__init__(self, parent)
 
-        self.sdir_label = ttk.Label(parent, text='Provider directories:')
-        self.sdir_label.grid(column=col, row=row, padx=10, pady=2, sticky=NW)
-
-        # set button to disabled as this path should be automatically detected
-        # and should not need modified
-        self.provider_list = Listbox(parent, width=64, height=4)
-        self.provider_list.grid(column=col+1, row=row, padx=10, pady=2,
-                                sticky=W)
-
-
-class CustomDirFrame(ttk.Frame):
-    """ UI frame to hold information regarding selected libraries to scan. """
-
-    def __init__(self, parent, col=0, row=0):
         ttk.Frame.__init__(self, parent)
 
-        self.lib_label = ttk.Label(parent, text='Library list:')
+        self.lib_label = ttk.Label(parent, text='Directory list:')
         self.lib_label.grid(column=col, row=row, padx=10, pady=2, sticky=NW)
 
         # listbox containing all selected additional directories to scan
-        self.lib_list = Listbox(parent, width=64, height=4,
+        self.dirlist = Listbox(parent, width=64, height=8,
                                 selectmode=MULTIPLE)
-        self.lib_list.bind('<<ListboxSelect>>', self.on_select)
-        self.lib_list.grid(column=col+1, row=row, padx=10, pady=2, sticky=W)
+        self.dirlist.bind('<<ListboxSelect>>', self.on_select)
+        self.dirlist.grid(column=col+1, row=row, padx=10, pady=2, sticky=W)
 
         self.lib_button = ttk.Button(parent, text='Add dir',
                                      command=self.add_library)
@@ -60,18 +47,18 @@ class CustomDirFrame(ttk.Frame):
         """ Insert every selected directory chosen from the dialog.
             Prevent duplicate directories by checking existing items. """
 
-        dirlist = self.lib_list.get(0, END)
+        dirlist = self.dirlist.get(0, END)
         newdir = gSteamclean.get_dir()
         if newdir not in dirlist:
-            self.lib_list.insert(END, newdir)
+            self.dirlist.insert(END, newdir)
 
     def rm_library(self):
         """ Remove selected items from listbox when button in remove mode. """
 
         # Reverse sort the selected indexes to ensure all items are removed
-        selected = sorted(self.lib_list.curselection(), reverse=True)
+        selected = sorted(self.dirlist.curselection(), reverse=True)
         for item in selected:
-            self.lib_list.delete(item)
+            self.dirlist.delete(item)
         self.lib_button['text'] = 'Add dir'
         self.lib_button['command'] = self.add_library
 
@@ -123,28 +110,23 @@ class gSteamclean(Tk):
 
         steamdir = libsteam.winreg_read()
         galaxydir = libgalaxy.winreg_read()
-        self.providers = [steamdir, galaxydir]
+        origindir = liborigin.winreg_read()
+        self.providers = [steamdir, galaxydir, origindir]
 
         self.title('steamclean v' + sc.VERSION)
         self.resizable(height=FALSE, width=FALSE)
 
-        if steamdir:
-            self.provider_frame = ProviderFrame(self, steamdir=steamdir, row=0)
-        else:
-            self.provider_frame = ProviderFrame(self, row=0)
-        self.lib_frame = CustomDirFrame(self, row=1)
-        self.fdata_frame = FileDataFrame(self, row=2)
+        self.dirframe = DirectoryFrame(self, row=0)
+        self.fdata_frame = FileDataFrame(self, row=1)
 
-        if len(self.providers) > 0:
-            for provider in self.providers:
-                self.provider_frame.provider_list.insert(END, provider)
-
-        self.provider_frame.provider_list['state'] = DISABLED
+        for provider in self.providers:
+            self.dirframe.dirlist.insert(END, provider)
+            self.dirframe.dirlist.itemconfig(END, fg='blue')
 
         if steamdir:
             libs = libsteam.get_libraries(steamdir=steamdir)
             for lib in libs:
-                self.lib_frame.lib_list.insert(END, lib)
+                self.dirframe.dirlist.insert(END, lib)
 
     def get_dir():
         """ Method to return the directory selected by the user which should
@@ -168,7 +150,7 @@ class gSteamclean(Tk):
 
         # build list of detected files from selected paths
         files = sc.find_redist(provider_dirs=self.providers,
-                               customdirs=self.lib_frame.lib_list.get(0, END))
+                               customdirs=self.dirframe.dirlist.get(0, END))
 
         totals['count'] = str(len(files))
 
