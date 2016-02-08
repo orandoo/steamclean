@@ -125,7 +125,13 @@ class gSteamclean(Tk):
 
         for provider in self.providers:
             self.dirframe.dirlist.insert(END, provider)
-            self.dirframe.dirlist.itemconfig(END, fg='blue')
+
+            # Attempt to highlight default provider directories blue
+            # This differentiates default locations from others in the list
+            try:
+                self.dirframe.dirlist.itemconfig(END, fg='blue')
+            except:
+                pass
 
         if steamdir:
             libs = libsteam.get_libraries(steamdir=steamdir)
