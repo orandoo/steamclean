@@ -224,9 +224,9 @@ def clean_data(filelist, confirm=''):
     # check if confirm is empty to determine if running from gui or cli
     # only prompt if running from cli, cannot respond when running from gui
     if confirm == '':
-        # Print a warning that files will be permanantly deleted and
+        # Print a warning that files will be permanently deleted and
         # inform user they can exclude files with the -p option.
-        print('\nWARNING: All files will be permanantly deleted!\n'
+        print('\nWARNING: All files will be permanently deleted!\n'
               'Please see the log file for specific file information.\n')
         while True:
             confirm = input('Do you wish to remove extra files [y/N]: ')
