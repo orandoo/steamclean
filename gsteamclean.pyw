@@ -24,8 +24,6 @@ class DirectoryFrame(ttk.Frame):
     def __init__(self, parent, col=0, row=0, steamdir=None):
         ttk.Frame.__init__(self, parent)
 
-        ttk.Frame.__init__(self, parent)
-
         self.lib_label = ttk.Label(parent, text='Directory list:')
         self.lib_label.grid(column=col, row=row, padx=10, pady=2, sticky=NW)
 
