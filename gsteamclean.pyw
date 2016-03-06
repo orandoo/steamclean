@@ -84,17 +84,33 @@ class FileDataFrame(ttk.Frame):
         self.scan_btn.grid(column=col+2, row=row, padx=10, pady=2,
                            sticky=E)
 
+        self.listframe = ttk.Frame(parent)
+        self.listframe.grid(column=col, columnspan=3, row=row+1,
+                            sticky=NSEW, padx=10, pady=2)
+
+        self.hscroll = ttk.Scrollbar(self.listframe)
+        self.hscroll.pack(side=BOTTOM, fill=X)
+
+        self.vscroll = ttk.Scrollbar(self.listframe)
+        self.vscroll.pack(side=RIGHT, fill=Y)
+
         # treeview containing details on filenames and sizes of all detected
         # files from specified directories
-        self.fdata_tree = ttk.Treeview(parent)
+        self.fdata_tree = ttk.Treeview(self.listframe)
         self.fdata_tree['columns'] = ('Filesize')
+        self.fdata_tree.config(xscrollcommand=self.hscroll.set,
+                               yscrollcommand=self.vscroll.set)
         self.fdata_tree.column('Filesize', stretch=0, width=128)
 
         # use first column for the path instead of default icon
         self.fdata_tree.heading('#0', text='Path', anchor=W)
         self.fdata_tree.heading('0', text='Filesize (MB)', anchor=W)
-        self.fdata_tree.grid(column=col, columnspan=3, row=row+1,
-                             padx=10, pady=2, sticky=NSEW)
+        self.fdata_tree.pack(side=TOP, fill=BOTH)
+
+        self.hscroll.configure(orient=HORIZONTAL,
+                               command=self.fdata_tree.xview)
+        self.vscroll.configure(orient=VERTICAL,
+                               command=self.fdata_tree.yview)
 
         # label to show total files found and their size
         # this label is blank to hide it until required to be shown
