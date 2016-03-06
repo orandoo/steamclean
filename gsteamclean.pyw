@@ -29,21 +29,29 @@ class DirectoryFrame(ttk.Frame):
 
         # listbox containing all selected additional directories to scan
         self.dirlist = Listbox(parent, width=64, height=8,
-                                selectmode=MULTIPLE)
+                               selectmode=MULTIPLE)
         self.dirlist.bind('<<ListboxSelect>>', self.on_select)
         self.dirlist.grid(column=col+1, row=row, padx=10, pady=2, sticky=W)
 
-        self.lib_button = ttk.Button(parent, text='Add dir',
-                                     command=self.add_library)
-        self.lib_button.grid(column=col+2, row=row, padx=10, pady=2, sticky=NW)
+        self.btnframe = ttk.Frame(parent)
+        self.btnframe.grid(column=col+2, row=row, sticky=NW)
+        self.lib_addbutton = ttk.Button(self.btnframe, text='Add dir',
+                                        command=self.add_library)
+        self.lib_addbutton.grid(column=col, row=row, padx=10, pady=2,
+                                sticky=NW)
+        self.lib_delbutton = ttk.Button(self.btnframe, text='Del dir',
+                                        command=self.rm_library,
+                                        state=DISABLED)
+        self.lib_delbutton.grid(column=col, row=row+1, padx=10, pady=2,
+                                sticky=NW)
 
     def on_select(self, selection):
+        """ Enable or disable based on a valid directory selection. """
+
         if self.dirlist.curselection():
-            self.lib_button['text'] = 'Del dir'
-            self.lib_button['command'] = self.rm_library
+            self.lib_delbutton.configure(state=NORMAL)
         else:
-            self.lib_button['text'] = 'Add dir'
-            self.lib_button['command'] = self.add_library
+            self.lib_delbutton.configure(state=DISABLED)
 
     def add_library(self):
         """ Insert every selected directory chosen from the dialog.
@@ -61,8 +69,6 @@ class DirectoryFrame(ttk.Frame):
         selected = sorted(self.dirlist.curselection(), reverse=True)
         for item in selected:
             self.dirlist.delete(item)
-        self.lib_button['text'] = 'Add dir'
-        self.lib_button['command'] = self.add_library
 
 
 class FileDataFrame(ttk.Frame):
