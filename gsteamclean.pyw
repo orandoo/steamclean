@@ -209,6 +209,11 @@ class gSteamclean(Tk):
             filemsg = str(fcount) + ' files removed successfully.\n'
             sizemsg = str(format(tsize, '.2f')) + ' MB saved.'
             messagebox.showinfo('Success!', filemsg + sizemsg)
+
+            # get list of all filenames and then remove them after cleaning
+            treeitems = self.fdata_frame.fdata_tree.get_children()
+            for item in treeitems:
+                self.fdata_frame.fdata_tree.delete(item)
         else:
             sc.clean_data(flist, confirm='n')
 
