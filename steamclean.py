@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 # Filename:         steamclean.py
-# Version:          0.8.0
+# Version:          0.8.1
 # Description:      Script to find and remove extraneous files from
 #                   Steam game installation directories.
 
@@ -21,7 +21,7 @@ import re
 if (os.name == 'nt'):
     import winreg
 
-VERSION = '0.8.0'   # Global version number as string
+VERSION = '0.8.1'   # Global version number as string
 
 # build sclogger and its configuration to write script data to specified log
 sclogger = logging.getLogger('steamclean')
