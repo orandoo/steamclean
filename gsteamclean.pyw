@@ -167,7 +167,6 @@ class gSteamclean(Tk):
         seldir = filedialog.askdirectory(initialdir=syspath[0])
         if seldir:
             seldir = ospath.abspath(seldir)
-            print(seldir)
             return seldir
 
     def scan_dirs(self):

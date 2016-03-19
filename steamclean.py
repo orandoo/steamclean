@@ -87,9 +87,6 @@ def find_redist(dirlist=None):
     else:
         dirlist = get_provider_dirs()
 
-    # Remove all invalid provider directories if not found via registry check
-    #providerdirs = [p for p in providerdirs if p is not None]
-
     gamedirs = {}       # list of all valid game directories
     cleanable = {}      # list of all files to be removed
 
@@ -125,30 +122,6 @@ def find_redist(dirlist=None):
 
     else:
         sclogger.info('No additional directories will be scanned.')
-
-    '''
-    if len(customlist) > 0:
-        # Check all provided libraries.
-        for subdir in customlist:
-            # correct path issues and validate path
-            subdir = libsteam.fix_game_path(subdir)
-            # Verify customdir path exists and is a directory
-            if not os.path.exists(subdir) or not os.path.isdir(subdir):
-                sclogger.warning('Ignoring invalid directory at %s', subdir)
-                continue
-
-            sclogger.info('Checking additional directory at %s', subdir)
-            print('Checking additional directory at %s' % (subdir))
-
-            # build list of all valid game directories in each customdir
-            if os.path.exists(subdir) and os.path.isdir(subdir):
-                for dir in os.listdir(subdir):
-                    libsubdir = os.path.join(subdir, dir)
-                    if os.path.exists(libsubdir) and os.path.isdir(libsubdir):
-                        if libsubdir not in gamedirs:
-                            # add key for each located directory
-                            gamedirs[libsubdir] = ''
-    '''
 
     # build list of redist files from subdirectories when applicable
     redistfiles = []
