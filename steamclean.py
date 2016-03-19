@@ -78,16 +78,12 @@ def get_provider_dirs():
 def find_redist(dirlist=None):
     """ Create list and scan all directories for removable data. """
 
-    # Split dirlist if present as a string from CLI.
-    if type(dirlist) is str:
-        dirlist = [dir for dir in dirlist.lower().split(',')]
-    else:
-        if dirlist:
-            dirlist = [dir for dir in dirlist]
-
-    # Append providers to supplied list of directories to check.
     if dirlist:
-        dirlist += get_provider_dirs()
+        if type(dirlist) is str:
+            dirlist = [dir for dir in dirlist.lower().split(',')]
+            dirlist += get_provider_dirs()
+        else:
+            dirlist = [dir for dir in dirlist] + get_provider_dirs()
     else:
         dirlist = get_provider_dirs()
 
