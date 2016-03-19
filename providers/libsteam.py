@@ -36,10 +36,10 @@ def get_libraries(steamdir):
     # path specified in that line by matching anything within quotes.
     libregex = re.compile('(^\t"[1-8]").*(".*")')
 
-    try:
-        libdirs = []
+    libdirs = []
 
-        liblogger.info('Attempting to read libraries from %s', libfile)
+    liblogger.info('Attempting to read libraries from %s', libfile)
+    try:
         with open(libfile) as file:
             for line in file:
                 dir = libregex.search(line)
@@ -53,11 +53,13 @@ def get_libraries(steamdir):
         # outside of this function for validity and are ignored if invalid.
         return libdirs
     except FileNotFoundError:
-        liblogger.error('Unable to find file %s', libfile, steamdir)
-        print('Unable to find file %s' % (libfile, steamdir))
+        liblogger.error('Unable to find file %s', libfile)
+        print('Unable to find file %s' % (libfile))
+        return None
     except PermissionError:
         liblogger.error('Permission denied to %s', libfile)
         print('Permission denied to %s' % (libfile))
+        return None
 
 
 def fix_game_path(dir):
