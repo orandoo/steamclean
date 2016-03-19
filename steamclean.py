@@ -63,9 +63,8 @@ def print_header(filename=None):
     print('Current operating system: %s %s\n' % (pp(), pm()))
 
 
-def find_redist(provider_dirs=None, customdirs=None):
-    """ Create list and scan all directories for removable data. """
-
+def get_provider_dirs():
+    """ Build a list of all provider directories that are auto discovered. """
     providerdirs = []
     if os.name == 'nt':
         providerdirs.append(libsteam.winreg_read())
@@ -73,36 +72,37 @@ def find_redist(provider_dirs=None, customdirs=None):
         providerdirs.append(liborigin.winreg_read())
 
     # Remove all invalid provider directories if not found via registry check
-    providerdirs = [p for p in providerdirs if p is not None]
+    return [p for p in providerdirs if p is not None]
+
+
+def find_redist(dirlist=None):
+    """ Create list and scan all directories for removable data. """
+
+    # Split dirlist if present as a string from CLI.
+    if type(dirlist) is str:
+        dirlist = [dir for dir in dirlist.lower().split(',')]
+    else:
+        if dirlist:
+            dirlist = [dir for dir in dirlist]
+
+    # Append providers to supplied list of directories to check.
+    if dirlist:
+        dirlist += get_provider_dirs()
+    else:
+        dirlist = get_provider_dirs()
+
+    # Remove all invalid provider directories if not found via registry check
+    #providerdirs = [p for p in providerdirs if p is not None]
 
     gamedirs = {}       # list of all valid game directories
     cleanable = {}      # list of all files to be removed
-    customlist = []     # list to hold any provided custom directories
 
-    if customdirs:
-        # split list is provided via cli application as a string
-        if type(customdirs) is str:
-            for subdir in customdirs.lower().split(','):
-                customlist.append(subdir)
-        else:
-            for subdir in customdirs:
-                customlist.append(subdir)
-
-    inputdir = ''
-    if len(providerdirs) == 0:
-        # For non-Windows OS prompt for directory input if needed
-        while not os.path.isdir(inputdir) or not os.path.exists(inputdir):
-            sclogger.warning('Invalid or missing directory at %s', inputdir)
-            inputdir = os.path.abspath(
-                input('Invalid or missing directory, ' +
-                      'please re-enter the directory: '))
-            providerdirs.append(inputdir)
-
-    for pdir in providerdirs:
+    for pdir in dirlist:
         # Validate provider installation path.
         if os.path.isdir(pdir) and 'Steam' in pdir:
-            for subdir in libsteam.get_libraries(pdir):
-                customlist.append(subdir)
+            if libsteam.get_libraries(pdir):
+                for subdir in libsteam.get_libraries(pdir):
+                    dirlist.append(subdir)
             pdir = libsteam.fix_game_path(pdir)
             sclogger.info('Game installations located at %s', pdir)
 
@@ -130,6 +130,7 @@ def find_redist(provider_dirs=None, customdirs=None):
     else:
         sclogger.info('No additional directories will be scanned.')
 
+    '''
     if len(customlist) > 0:
         # Check all provided libraries.
         for subdir in customlist:
@@ -151,6 +152,7 @@ def find_redist(provider_dirs=None, customdirs=None):
                         if libsubdir not in gamedirs:
                             # add key for each located directory
                             gamedirs[libsubdir] = ''
+    '''
 
     # build list of redist files from subdirectories when applicable
     redistfiles = []
@@ -312,7 +314,7 @@ if __name__ == "__main__":
     print_header()
 
     if os.name == 'nt':
-        cleanable = find_redist(customdirs=args.dir)
+        cleanable = find_redist(dirlist=args.dir)
 
         if len(cleanable) > 0:
             if args.dryrun:
