@@ -7,6 +7,7 @@ import providers.libsteam as libsteam
 import providers.libgalaxy as libgalaxy
 import providers.liborigin as liborigin
 
+from os import name as osname
 from os import path as ospath
 from sys import path as syspath
 
@@ -54,12 +55,11 @@ class DirectoryFrame(ttk.Frame):
             self.lib_delbutton.configure(state=DISABLED)
 
     def add_library(self):
-        """ Insert every selected directory chosen from the dialog.
+        """ Insert selected directory chosen from the dialog.
             Prevent duplicate directories by checking existing items. """
 
-        dirlist = self.dirlist.get(0, END)
         newdir = gSteamclean.get_dir()
-        if newdir not in dirlist:
+        if newdir not in self.dirlist.get(0, END):
             self.dirlist.insert(END, newdir)
 
     def rm_library(self):
@@ -132,10 +132,11 @@ class gSteamclean(Tk):
     def __init__(self):
         Tk.__init__(self)
 
-        steamdir = libsteam.winreg_read()
-        galaxydir = libgalaxy.winreg_read()
-        origindir = liborigin.winreg_read()
-        self.providers = [steamdir, galaxydir, origindir]
+        if osname == 'nt':
+            steamdir = libsteam.winreg_read()
+            galaxydir = libgalaxy.winreg_read()
+            origindir = liborigin.winreg_read()
+            self.dirlist = [steamdir, galaxydir, origindir]
 
         self.title('steamclean v' + sc.VERSION)
         self.resizable(height=FALSE, width=FALSE)
@@ -143,7 +144,7 @@ class gSteamclean(Tk):
         self.dirframe = DirectoryFrame(self, row=0)
         self.fdata_frame = FileDataFrame(self, row=1)
 
-        for provider in self.providers:
+        for provider in self.dirlist:
             self.dirframe.dirlist.insert(END, provider)
 
             # Attempt to highlight default provider directories blue
@@ -166,6 +167,7 @@ class gSteamclean(Tk):
         seldir = filedialog.askdirectory(initialdir=syspath[0])
         if seldir:
             seldir = ospath.abspath(seldir)
+            print(seldir)
             return seldir
 
     def scan_dirs(self):
@@ -179,8 +181,7 @@ class gSteamclean(Tk):
             treeview.delete(item)
 
         # build list of detected files from selected paths
-        files = sc.find_redist(provider_dirs=self.providers,
-                               customdirs=self.dirframe.dirlist.get(0, END))
+        files = sc.find_redist(dirlist=self.dirframe.dirlist.get(0, END))
 
         totals['count'] = str(len(files))
 
