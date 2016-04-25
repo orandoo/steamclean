@@ -18,7 +18,7 @@ import logging
 import os
 import re
 
-if (os.name == 'nt'):
+if os.name == 'nt':
     import winreg
 
 VERSION = '0.8.1'   # Global version number as string
