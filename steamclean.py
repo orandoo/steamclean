@@ -63,6 +63,17 @@ def print_header(filename=None):
     print('Current operating system: %s %s\n' % (pp(), pm()))
 
 
+def timef(timediff):
+    """ Return a formatted string of given time difference.
+        timediff is of 'datetime.timedelta' type. """
+    minutes, seconds = divmod(timediff.total_seconds(), 60)
+    hours = 0
+    while minutes >= 60:
+        hours += 1
+        minutes -= 60
+    timestr = '%02d:%02d:%02d' % (hours, minutes, seconds)
+    return timestr
+
 def get_provider_dirs():
     """ Build a list of all provider directories that are auto discovered. """
     providerdirs = []
@@ -77,6 +88,8 @@ def get_provider_dirs():
 
 def find_redist(dirlist=None):
     """ Create list and scan all directories for removable data. """
+
+    start_time = datetime.now() # Start time of scanning
 
     if dirlist:
         if type(dirlist) is str:
@@ -160,6 +173,12 @@ def find_redist(dirlist=None):
         sclogger.info('File %s found with size %s MB',
                       file, format(cleanable[file], '.2f'))
 
+    # Log time taken to scan 
+    end_time = datetime.now()
+    time_taken = timef(end_time - start_time)
+    sclogger.info("Time taken to scan = %s", time_taken)
+    print("Time taken to scan = %s" % time_taken)
+
     # Return the list of cleanable files and their approximate size.
     return cleanable
 
@@ -188,10 +207,6 @@ def clean_data(filelist, confirm=''):
         Will prompt user for a list of files to exclude with the proper
         options otherwise all will be deleted."""
 
-    filecount, totalsize = print_stats(filelist)
-
-    excludes = get_excludes()   # compiled regex pattern
-
     # check if confirm is empty to determine if running from gui or cli
     # only prompt if running from cli, cannot respond when running from gui
     if confirm == '':
@@ -212,8 +227,13 @@ def clean_data(filelist, confirm=''):
     # Confirm removal of all found files. Print list of files not removed and
     # count of removed items.
     if confirm == 'y':
+        start_time = datetime.now() # Start time of cleanup
+
         removed = 0
         excluded = 0
+
+        filecount, totalsize = print_stats(filelist)
+        excludes = get_excludes()   # compiled regex pattern
 
         for index, file in enumerate(filelist):
             try:
@@ -246,7 +266,17 @@ def clean_data(filelist, confirm=''):
         print('%s file(s) excluded and not removed' % (excluded))
         print('%s MB saved' % (format(totalsize, '.2f')))
 
-    return filecount, totalsize
+        # Log time taken to clean 
+        end_time = datetime.now()
+        time_taken = timef(end_time - start_time)
+        sclogger.info("Time taken to clean = %s", time_taken)
+        print("Time taken to clean = %s" % time_taken)
+
+        return filecount, totalsize
+
+    else:
+        # Return sign that no cleanup took place.
+        return -1, -1
 
 
 def print_stats(cleanable):
@@ -283,6 +313,8 @@ if __name__ == "__main__":
     print_header()
 
     if os.name == 'nt':
+        start_time = datetime.now() # Start time of session.
+
         cleanable = find_redist(dirlist=args.dir)
 
         if len(cleanable) > 0:
@@ -292,6 +324,12 @@ if __name__ == "__main__":
                 clean_data(cleanable)
         else:
             print('\nCongratulations! No files were found for removal. ')
+
+        # Log session time 
+        end_time = datetime.now()
+        time_taken = timef(end_time - start_time)
+        sclogger.info("Time taken by this session = %s", time_taken)
+        print("Time taken by this session = %s" % time_taken)
     else:
         print('Invalid operating system detected, or not currently supported')
 
