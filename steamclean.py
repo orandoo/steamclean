@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 # Filename:         steamclean.py
-# Version:          0.8.1
+# Version:          0.8.2
 # Description:      Script to find and remove extraneous files from
 #                   Steam game installation directories.
 
@@ -21,7 +21,7 @@ import re
 if os.name == 'nt':
     import winreg
 
-VERSION = '0.8.1'   # Global version number as string
+VERSION = '0.8.2'   # Global version number as string
 
 # build sclogger and its configuration to write script data to specified log
 sclogger = logging.getLogger('steamclean')
@@ -74,6 +74,7 @@ def timef(timediff):
     timestr = '%02d:%02d:%02d' % (hours, minutes, seconds)
     return timestr
 
+
 def get_provider_dirs():
     """ Build a list of all provider directories that are auto discovered. """
     providerdirs = []
@@ -89,7 +90,8 @@ def get_provider_dirs():
 def find_redist(dirlist=None):
     """ Create list and scan all directories for removable data. """
 
-    start_time = datetime.now() # Start time of scanning
+    # Start time of scanning
+    start_time = datetime.now()
 
     if dirlist:
         if type(dirlist) is str:
@@ -173,7 +175,7 @@ def find_redist(dirlist=None):
         sclogger.info('File %s found with size %s MB',
                       file, format(cleanable[file], '.2f'))
 
-    # Log time taken to scan 
+    # Log time taken to scan
     end_time = datetime.now()
     time_taken = timef(end_time - start_time)
     sclogger.info("Time taken to scan = %s", time_taken)
@@ -207,6 +209,9 @@ def clean_data(filelist, confirm=''):
         Will prompt user for a list of files to exclude with the proper
         options otherwise all will be deleted."""
 
+    filecount, totalsize = print_stats(filelist)
+    excludes = get_excludes()   # compiled regex pattern
+
     # check if confirm is empty to determine if running from gui or cli
     # only prompt if running from cli, cannot respond when running from gui
     if confirm == '':
@@ -227,13 +232,11 @@ def clean_data(filelist, confirm=''):
     # Confirm removal of all found files. Print list of files not removed and
     # count of removed items.
     if confirm == 'y':
-        start_time = datetime.now() # Start time of cleanup
+        # Start time of cleanup
+        start_time = datetime.now()
 
         removed = 0
         excluded = 0
-
-        filecount, totalsize = print_stats(filelist)
-        excludes = get_excludes()   # compiled regex pattern
 
         for index, file in enumerate(filelist):
             try:
@@ -266,7 +269,7 @@ def clean_data(filelist, confirm=''):
         print('%s file(s) excluded and not removed' % (excluded))
         print('%s MB saved' % (format(totalsize, '.2f')))
 
-        # Log time taken to clean 
+        # Log time taken to clean
         end_time = datetime.now()
         time_taken = timef(end_time - start_time)
         sclogger.info("Time taken to clean = %s", time_taken)
@@ -313,7 +316,8 @@ if __name__ == "__main__":
     print_header()
 
     if os.name == 'nt':
-        start_time = datetime.now() # Start time of session.
+        # Start time of session.
+        start_time = datetime.now()
 
         cleanable = find_redist(dirlist=args.dir)
 
@@ -325,7 +329,7 @@ if __name__ == "__main__":
         else:
             print('\nCongratulations! No files were found for removal. ')
 
-        # Log session time 
+        # Log session time
         end_time = datetime.now()
         time_taken = timef(end_time - start_time)
         sclogger.info("Time taken by this session = %s", time_taken)
