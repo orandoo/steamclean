@@ -18,6 +18,8 @@ import logging
 import os
 import re
 
+#nt = Windows
+#Windows registry needed to find installation directories
 if (os.name == 'nt'):
     import winreg
 
@@ -59,6 +61,7 @@ def print_header(filename=None):
         sclogger.exception('Unknown exception raised')
         pass
 
+    
     print('Starting %s' % (header))
     print('Current operating system: %s %s\n' % (pp(), pm()))
 
@@ -66,6 +69,7 @@ def print_header(filename=None):
 def find_redist(provider_dirs=None, customdirs=None):
     """ Create list and scan all directories for removable data. """
 
+    #providerdirs is a list of the default directories, given by windows registry
     providerdirs = []
     if os.name == 'nt':
         providerdirs.append(libsteam.winreg_read())
@@ -279,8 +283,10 @@ def clean_data(filelist, confirm=''):
 
 
 def print_stats(cleanable):
-    """ Print a report of removable files and their estimated size. """
-
+    """ Print a report of removable files and their estimated size.
+        For every file that is marked for deletion, record the total size
+        and convert to MB."""
+    
     filecount = len(cleanable)
     totalsize = 0
     for cfile in cleanable:
@@ -298,6 +304,7 @@ def print_stats(cleanable):
 
 
 if __name__ == "__main__":
+    """ Use argparse to add description and commandline arguments. """
     parser = argparse.ArgumentParser(
         description='Find and clean extraneous files from game directories '
                     'including various Windows redistributables.')
@@ -311,9 +318,12 @@ if __name__ == "__main__":
 
     print_header()
 
+    #only Windows is supported at the moment
+    #list of cleanable files is found from custom directories, which are taken
+    #from the arguments
     if os.name == 'nt':
         cleanable = find_redist(customdirs=args.dir)
-
+        
         if len(cleanable) > 0:
             if args.dryrun:
                 print_stats(cleanable)
