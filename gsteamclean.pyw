@@ -17,6 +17,8 @@ from tkinter import ttk
 
 import steamclean as sc
 
+""" The GUI is composed of 2 frames: the top shall list the directories
+            and the bottom shall list the relevant files within them. """
 
 class DirectoryFrame(ttk.Frame):
     """ Top UI frame containing the list of directories to be scanned. """
@@ -24,6 +26,7 @@ class DirectoryFrame(ttk.Frame):
     def __init__(self, parent, col=0, row=0, steamdir=None):
         ttk.Frame.__init__(self, parent)
 
+        #Label for directory
         self.lib_label = ttk.Label(parent, text='Directory list:')
         self.lib_label.grid(column=col, row=row, padx=10, pady=2, sticky=NW)
 
@@ -33,12 +36,14 @@ class DirectoryFrame(ttk.Frame):
         self.dirlist.bind('<<ListboxSelect>>', self.on_select)
         self.dirlist.grid(column=col+1, row=row, padx=10, pady=2, sticky=W)
 
+        #button for adding addition directories
         self.btnframe = ttk.Frame(parent)
         self.btnframe.grid(column=col+2, row=row, sticky=NW)
         self.lib_addbutton = ttk.Button(self.btnframe, text='Add dir',
                                         command=self.add_library)
         self.lib_addbutton.grid(column=col, row=row, padx=10, pady=2,
                                 sticky=NW)
+        #button to delete directory
         self.lib_delbutton = ttk.Button(self.btnframe, text='Del dir',
                                         command=self.rm_library,
                                         state=DISABLED)
@@ -72,9 +77,12 @@ class DirectoryFrame(ttk.Frame):
 
 
 class FileDataFrame(ttk.Frame):
+    #Bottom UI frame for the detected files within scanned directories
+    
     def __init__(self, parent, col=0, row=0):
         ttk.Frame.__init__(self, parent)
 
+        #Label for section
         self.list_label = ttk.Label(parent, text='Detected files:')
         self.list_label.grid(column=col, row=row, padx=10, pady=2, sticky=NW)
 
@@ -84,10 +92,12 @@ class FileDataFrame(ttk.Frame):
         self.scan_btn.grid(column=col+2, row=row, padx=10, pady=2,
                            sticky=E)
 
+        #the list for the filenames
         self.listframe = ttk.Frame(parent)
         self.listframe.grid(column=col, columnspan=3, row=row+1,
                             sticky=NSEW, padx=10, pady=2)
 
+        #scrollbars
         self.hscroll = ttk.Scrollbar(self.listframe)
         self.hscroll.pack(side=BOTTOM, fill=X)
 
@@ -132,11 +142,13 @@ class gSteamclean(Tk):
     def __init__(self):
         Tk.__init__(self)
 
+        #uses windows registry to attempt to automatically detect directories
         steamdir = libsteam.winreg_read()
         galaxydir = libgalaxy.winreg_read()
         origindir = liborigin.winreg_read()
         self.providers = [steamdir, galaxydir, origindir]
 
+        #window properties
         self.title('steamclean v' + sc.VERSION)
         self.resizable(height=FALSE, width=FALSE)
 
@@ -152,7 +164,8 @@ class gSteamclean(Tk):
                 self.dirframe.dirlist.itemconfig(END, fg='blue')
             except:
                 pass
-
+            
+        #adds any additional steam libraries
         if steamdir:
             libs = libsteam.get_libraries(steamdir=steamdir)
             for lib in libs:
@@ -169,6 +182,8 @@ class gSteamclean(Tk):
             return seldir
 
     def scan_dirs(self):
+        """ Method to scan the directories """
+        
         self.fdata_frame.total_label['text'] = ''
 
         totals = {'count': 0, 'size': 0}
@@ -207,6 +222,8 @@ class gSteamclean(Tk):
                                 message='No files found for removal.')
 
     def clean_all(self):
+        """ Method to clean the directory of scanned files to be deleted. """
+        
         flist = {}  # dictionary of all file data read from gui
 
         # loop through treeview items to get the path and filesize
@@ -220,6 +237,7 @@ class gSteamclean(Tk):
         confirm = messagebox.askyesno('Confirm removal', confirm_prompt)
 
         # convert response into expected values for clean_data function
+        #prints a message to a message box with amount of space user has saved
         if confirm is True:
             fcount, tsize = sc.clean_data(flist, confirm='y')
             filemsg = str(fcount) + ' files removed successfully.\n'
